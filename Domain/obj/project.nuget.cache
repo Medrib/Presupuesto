@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "ub5ufAqBB51tI/11+7pJklRO0jTbqBgaiWo0c8n+eMvn9MhVqH4mV1l2OyNr/UvDcUL02ZN1tzZciHkQyWKVLg==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\crist\\Proyects\\Presupuesto\\Domain\\Domain.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\crist\\.nuget\\packages\\mediatr\\9.0.0\\mediatr.9.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}

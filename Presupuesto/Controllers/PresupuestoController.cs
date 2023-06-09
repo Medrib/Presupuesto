@@ -23,5 +23,12 @@ namespace Presupuesto.Controllers
             var response =  await _datosPersonalesDB.DatosPersonalesByDni(dni);
             return response;
         }
+
+        [HttpGet("/Clientes/", Name = "Clientes")]
+        public async Task<List<DatosPersonales>> Clientes()
+        {
+            var response = await _datosPersonalesDB.Clientes();
+            return response;
+        }
     }
 }

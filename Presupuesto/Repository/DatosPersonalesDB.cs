@@ -32,6 +32,34 @@ namespace Presupuesto.Repository
                 return clienteData;
             }
         }
+
+        public async Task<List<DatosPersonales>> Clientes()
+        {
+            var clientes = new List<DatosPersonales>();
+            using (SqlConnection connection = BDPresupuesto.ObtenerConexion())
+            {
+                SqlCommand command = new SqlCommand(
+                    string.Format("Select Dni, Nombre, Apellido, Domicilio, Fecha_Nacimiento from DatosPersonales"),
+                      connection
+                );
+
+                SqlDataReader reader = command.ExecuteReader();
+                var cliente = new DatosPersonales();
+
+                while (reader.Read())
+                {
+                    cliente.Dni = reader.GetInt32(0);
+                    cliente.Nombre = reader.GetString(1);
+                    cliente.Apellido = reader.GetString(2);
+                    cliente.Domicilio = reader.GetString(3);
+                    cliente.Fecha_Nacimiento = reader.GetDateTime(4);
+                    clientes.Add(cliente);
+                }
+
+                connection.Close();
+                return clientes;
+            }
+        }
     }
 }
   
