@@ -11,6 +11,7 @@ namespace Presupuesto.Controllers
 
         private readonly ILogger<WeatherForecastController> _logger;
         private DatosPersonalesDB _datosPersonalesDB = new DatosPersonalesDB();
+        private GastosDB _gastosDB = new GastosDB();
 
         public PresupuestoController(ILogger<WeatherForecastController> logger)
         {
@@ -20,7 +21,7 @@ namespace Presupuesto.Controllers
         [HttpGet("/BuscarClientePorDni/", Name = "BuscarClientePorDni")]
         public async Task<DatosPersonales> BuscarClientePorDni(int dni)
         {
-            var response =  await _datosPersonalesDB.DatosPersonalesByDni(dni);
+            var response = await _datosPersonalesDB.DatosPersonalesByDni(dni);
             return response;
         }
 
@@ -29,7 +30,14 @@ namespace Presupuesto.Controllers
         {
             var response = await _datosPersonalesDB.Clientes();
             return response;
-         //test
+        }
+
+        [HttpGet("/ObtenerGastos", Name = "PbtenerGstos")]
+
+        public async Task<List<Gastos>> ObtenerGastosTotales()
+        {
+            var response = await _gastosDB.GastosPorMes();
+            return response;
         }
     }
 }
