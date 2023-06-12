@@ -2,6 +2,7 @@
 using Presupuesto.DataBase;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Net;
 
 namespace Presupuesto.Repository
@@ -37,14 +38,14 @@ namespace Presupuesto.Repository
             }
         }
 
-        public async Task<List<Gastos>> GastosPorProducto(string idProducto)
+        public async Task<List<Gastos>> GastosPorProducto(string idRubro)
         {
             var gastos = new List<Gastos>();
-            
+            //idRubro example: IND
             using (SqlConnection connection = Connection.ObtenerConexion())
             {
                 SqlCommand command = new SqlCommand(
-                    string.Format("Select Id, Valor, Consumidor, Fecha from Gastos where Id like {0}", idProducto),
+                    string.Format("SELECT Id, Valor, Consumidor, Fecha FROM Gastos"),
                       connection
                 );
 
@@ -53,10 +54,14 @@ namespace Presupuesto.Repository
 
                 while (reader.Read())
                 {
-                    gasto.Id = reader.GetString(0);
-                    gasto.Valor = reader.GetDecimal(1);
-                    gasto.Consumidor = reader.GetInt32(2);
-                    gasto.Fecha = reader.GetDateTime(4);
+                    if(reader.GetString(0).Contains(idRubro.ToUpper()))
+                    {
+                        gasto.Id = reader.GetString(0);
+                        gasto.Valor = reader.GetDecimal(1);
+                        gasto.Consumidor = reader.GetInt32(2);
+                        gasto.Fecha = reader.GetDateTime(4);
+                        gastos.Add(gasto);
+                    }
 
                 }
 
