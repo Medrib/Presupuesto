@@ -87,5 +87,27 @@ namespace Presupuesto.Repository
                 return idGasto;
             }
         }
-    }
+
+        public async Task<string> EliminarGasto(string IdGasto)
+        {
+            using (SqlConnection connection = Connection.ObtenerConexion())
+            {
+                SqlCommand command = new SqlCommand(
+                  string.Format("DELETE FROM Gastos WHERE Id=" + IdGasto),
+                    connection
+              );
+
+                SqlDataReader reader = command.ExecuteReader();
+
+                var cant = command.ExecuteNonQuery();
+                connection.Close();
+                if (cant == 1)
+                {
+                    return "Se borró correctamente.";
+                }
+
+                return "No se pudo borrar ese gasto.";
+            }
+            }
+        }
 }

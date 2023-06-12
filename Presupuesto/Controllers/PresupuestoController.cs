@@ -40,5 +40,9 @@ namespace Presupuesto.Controllers
         [HttpPost("/AgregarGasto", Name = "AgregarGasto")]
         public async Task<string> AgregarGasto(AgregarGastoRequest detalle)
             => await _gastosDB.AgregarGasto(detalle);
+
+        [HttpDelete("/EliminarGasto", Name = "EliminarGasto")]
+        public async Task<string> EliminarGasto(string idGasto)
+            => await _gastosDB.EliminarGasto(idGasto);
     }
 }
