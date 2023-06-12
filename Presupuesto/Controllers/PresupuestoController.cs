@@ -18,26 +18,27 @@ namespace Presupuesto.Controllers
             _logger = logger;
         }
 
-        [HttpGet("/BuscarClientePorDni/", Name = "BuscarClientePorDni")]
-        public async Task<DatosPersonales> BuscarClientePorDni(int dni)
-        {
-            var response = await _datosPersonalesDB.DatosPersonalesByDni(dni);
-            return response;
-        }
+        [HttpGet("/ObtenerClientePorDni", Name = "ObtenerClientePorDni")]
+        public async Task<DatosPersonales> ObtenerClientePorDni(int dni)
+            => await _datosPersonalesDB.DatosPersonalesByDni(dni);
 
-        [HttpGet("/Clientes/", Name = "Clientes")]
-        public async Task<List<DatosPersonales>> Clientes()
-        {
-            var response = await _datosPersonalesDB.Clientes();
-            return response;
-        }
 
-        [HttpGet("/ObtenerGastos", Name = "PbtenerGstos")]
+        [HttpGet("/ObtenerClientes", Name = "ObtenerClientes")]
+        public async Task<List<DatosPersonales>> ObtenerClientes()
+            => await _datosPersonalesDB.Clientes();
 
+        [HttpGet("/ObtenerGastosPorProducto", Name = "ObtenerGastosPorProducto")]
+        public async Task<List<Gastos>> ObtenerGastosPorProducto(string idProducto)
+            => await _gastosDB.GastosPorProducto(idProducto);
+
+
+        [HttpGet("/ObtenerGastosTotales", Name = "ObtenerGastosTotales")]
         public async Task<List<Gastos>> ObtenerGastosTotales()
-        {
-            var response = await _gastosDB.GastosPorMes();
-            return response;
-        }
+            => await _gastosDB.ObtenerGastosTotales();
+
+
+        [HttpPost("/AgregarGasto", Name = "AgregarGasto")]
+        public async Task<string> AgregarGasto(AgregarGastoRequest detalle)
+            => await _gastosDB.AgregarGasto(detalle);
     }
 }
