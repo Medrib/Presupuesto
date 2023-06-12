@@ -1,5 +1,5 @@
-﻿using Presupuesto.DataBase;
-using Presupuesto.DataBase.Models;
+﻿using Domain.Dtos.Cliente;
+using Presupuesto.DataBase;
 using System.Data.SqlClient;
 using System.Net.NetworkInformation;
 
@@ -10,7 +10,7 @@ namespace Presupuesto.Repository
         public async Task<DatosPersonales> DatosPersonalesByDni(int dni)
         {
             DatosPersonales clienteData = new DatosPersonales();
-            using (SqlConnection connection = BDPresupuesto.ObtenerConexion())
+            using (SqlConnection connection = Connection.ObtenerConexion())
             {
                 SqlCommand command = new SqlCommand(
                     string.Format("Select Dni, Nombre, Apellido, Domicilio, Fecha_Nacimiento from DatosPersonales where Dni like {0}", dni),
@@ -36,7 +36,7 @@ namespace Presupuesto.Repository
         public async Task<List<DatosPersonales>> Clientes()
         {
             var clientes = new List<DatosPersonales>();
-            using (SqlConnection connection = BDPresupuesto.ObtenerConexion())
+            using (SqlConnection connection = Connection.ObtenerConexion())
             {
                 SqlCommand command = new SqlCommand(
                     string.Format("Select Dni, Nombre, Apellido, Domicilio, Fecha_Nacimiento from DatosPersonales"),

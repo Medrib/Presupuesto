@@ -6,7 +6,7 @@ using System.Data.SqlClient;
 
 namespace Presupuesto.DataBase
 {
-    public class BDPresupuesto
+    public class Connection
     {
         public static SqlConnection ObtenerConexion()
         {

@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Presupuesto.DataBase.Models;
+﻿using Domain.Dtos.Cliente;
+using Microsoft.AspNetCore.Mvc;
 using Presupuesto.Repository;
 
 namespace Presupuesto.Controllers

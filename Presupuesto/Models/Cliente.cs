@@ -1,4 +1,6 @@
-﻿using Presupuesto.DataBase.Models;
+﻿
+
+using Domain.Dtos.Cliente;
 
 namespace Presupuesto.Models
 {
