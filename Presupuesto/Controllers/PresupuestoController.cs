@@ -12,6 +12,7 @@ namespace Presupuesto.Controllers
         private readonly ILogger<WeatherForecastController> _logger;
         private DatosPersonalesDB _datosPersonalesDB = new DatosPersonalesDB();
         private GastosDB _gastosDB = new GastosDB();
+        private PresupuestosDB _presupuestosDB = new PresupuestosDB();
 
         public PresupuestoController(ILogger<WeatherForecastController> logger)
         {
@@ -51,7 +52,11 @@ namespace Presupuesto.Controllers
 
         [HttpDelete("/EliminarCliente",Name ="EliminarCliente")]
         public async Task<string> EliminarCliente(int dni)
-            => await _datosPersonalesDB.EliminarCliente(dni);  
+            => await _datosPersonalesDB.EliminarCliente(dni);
+
+        [HttpPost("/AgregarPresupuesto", Name = "AgregarPresupuesto")]
+        public async Task<int> AgregarPresupuesto(RequestPresupuesto request)
+            => await _presupuestosDB.AgregarPresupuesto(request);
     }
 
 
