@@ -76,38 +76,47 @@ namespace Presupuesto.Repository
             Random rnd = new Random();
             var parteEntera = rnd.Next(10000000, 100000000);
             var idGasto = detalle.IdRubro + parteEntera;
-            using (SqlConnection connection = Connection.ObtenerConexion())
+            using (SqlConnection conn = Connection.ObtenerConexion())
             {
-                SqlCommand command = new SqlCommand(
-                    string.Format("INSERT INTO Gastos(Id,Valor,Consumidor,Fecha) VALUES ({0},{1},{2},{4})", idGasto, detalle.Valor, detalle.Consumidor, DateTime.Now.AddHours(-3)),
-                      connection
-                );
+                using (SqlCommand cmd = new SqlCommand())
+                {
+                    cmd.Connection = conn;
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = @"INSERT INTO Gastos(Id,Valor,Consumidor,Fecha) VALUES (@idGasto,@valor,@consumidor,@fecha)";
 
-                connection.Close();
-                return idGasto;
+                    cmd.Parameters.AddWithValue("@idGasto", idGasto);
+                    cmd.Parameters.AddWithValue("@valor", detalle.Valor);
+                    cmd.Parameters.AddWithValue("@consumidor", detalle.Consumidor);
+                    cmd.Parameters.AddWithValue("@fecha", DateTime.UtcNow.AddHours(-3));
+
+                    //conn.Open();
+                    cmd.ExecuteNonQuery();
+
+                    conn.Close();
+                    return idGasto;
+                }
             }
         }
 
         public async Task<string> EliminarGasto(string IdGasto)
         {
-            using (SqlConnection connection = Connection.ObtenerConexion())
+            using (SqlConnection conn = Connection.ObtenerConexion())
             {
-                SqlCommand command = new SqlCommand(
-                  string.Format("DELETE FROM Gastos WHERE Id=" + IdGasto),
-                    connection
-              );
-
-                SqlDataReader reader = command.ExecuteReader();
-
-                var cant = command.ExecuteNonQuery();
-                connection.Close();
-                if (cant == 1)
+                using (SqlCommand cmd = new SqlCommand())
                 {
-                    return "Se borró correctamente.";
-                }
+                    cmd.Connection = conn;
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = @"DELETE FROM Gastos WHERE Id = @id";
 
-                return "No se pudo borrar ese gasto.";
-            }
+                    cmd.Parameters.AddWithValue("@id", IdGasto);
+
+                    //conn.Open();
+                    cmd.ExecuteNonQuery();
+
+                    conn.Close();
+                    return "El gasto se eliminó correctamente.";
+                }
             }
         }
+    }
 }
