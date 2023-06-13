@@ -91,7 +91,7 @@ namespace Presupuesto.Repository
                         gasto.Id = reader.GetString(0);
                         gasto.Valor = reader.GetDecimal(1);
                         gasto.Consumidor = reader.GetInt32(2);
-                        gasto.Fecha = reader.GetDateTime(4);
+                        gasto.Fecha = reader.GetDateTime(3);
                         gastoMes.Add(gasto);
 
                     }

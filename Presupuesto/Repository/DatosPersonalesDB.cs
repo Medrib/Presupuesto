@@ -1,5 +1,6 @@
 ﻿using Domain.Dtos.Cliente;
 using Presupuesto.DataBase;
+using System.Data;
 using System.Data.SqlClient;
 using System.Net.NetworkInformation;
 
@@ -58,6 +59,27 @@ namespace Presupuesto.Repository
 
                 connection.Close();
                 return clientes;
+            }
+        }
+
+        public async Task<string> EliminarCliente(int dni)
+        {
+            using (SqlConnection conn = Connection.ObtenerConexion())
+            {
+                using (SqlCommand cmd = new SqlCommand())
+                {
+                    cmd.Connection = conn;
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = @"DELETE FROM DatosPersonales WHERE Dni = @Dni";
+
+                    cmd.Parameters.AddWithValue("@Dni", dni);
+
+                    //conn.Open();
+                    cmd.ExecuteNonQuery();
+
+                    conn.Close();
+                    return "El Cliente se eliminó correctamente.";
+                }
             }
         }
     }
