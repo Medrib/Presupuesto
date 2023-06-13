@@ -44,5 +44,9 @@ namespace Presupuesto.Controllers
         [HttpDelete("/EliminarGasto", Name = "EliminarGasto")]
         public async Task<string> EliminarGasto(string idGasto)
             => await _gastosDB.EliminarGasto(idGasto);
+
+        [HttpGet("/GastosPorMes", Name = "GastosPorMes")]
+        public async Task<List<Gastos>> GastosPorMes(int mes)
+            => await _gastosDB.GastosPorMes(mes);
     }
 }

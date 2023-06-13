@@ -70,9 +70,40 @@ namespace Presupuesto.Repository
             }
         }
 
+        public async Task<List<Gastos>> GastosPorMes(int mes)
+        {
+            var gastoMes = new List<Gastos>();
+       
+            using (SqlConnection connection = Connection.ObtenerConexion())
+            {
+                SqlCommand command = new SqlCommand(
+                    string.Format("SELECT Id, Valor, Consumidor, Fecha FROM Gastos"),
+                      connection
+                );
+
+                SqlDataReader reader = command.ExecuteReader();
+                var gasto = new Gastos();
+
+                while (reader.Read())
+                {
+                    if(reader.GetDateTime(3).Month == mes && mes <= 12 && mes >= 1)
+                    {
+                        gasto.Id = reader.GetString(0);
+                        gasto.Valor = reader.GetDecimal(1);
+                        gasto.Consumidor = reader.GetInt32(2);
+                        gasto.Fecha = reader.GetDateTime(4);
+                        gastoMes.Add(gasto);
+
+                    }
+                        
+                }
+                connection.Close();
+                return gastoMes;
+            }
+        }
+
         public async Task<string> AgregarGasto(AgregarGastoRequest detalle)
         {
-            var gastos = new List<Gastos>();
             Random rnd = new Random();
             var parteEntera = rnd.Next(10000000, 100000000);
             var idGasto = detalle.IdRubro + parteEntera;
