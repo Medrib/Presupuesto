@@ -1,4 +1,5 @@
-﻿using Domain.Dtos.Cliente;
+﻿using Azure;
+using Domain.Dtos.Cliente;
 using Presupuesto.DataBase;
 using System.Data;
 using System.Data.SqlClient;
@@ -102,12 +103,8 @@ namespace Presupuesto.Repository
             }
         }
 
-        public async Task<string> AgregarGasto(AgregarGastoRequest detalle)
+        private PuedeGastarResponse PuedeGastar(string idRubro, decimal valorAGastar)
         {
-            Random rnd = new Random();
-            var parteEntera = rnd.Next(10000000, 100000000);
-            var idGasto = detalle.IdRubro + parteEntera;
-
             decimal gastoRubro = 0;
             var puedeGastar = false;
 
@@ -117,66 +114,77 @@ namespace Presupuesto.Repository
                 cmdPresupuesto.Connection = conn;
                 cmdPresupuesto.CommandType = CommandType.Text;
                 cmdPresupuesto.CommandText = @"SELECT IdPresupuesto, IdRubro, Rubro, Responsable, Estimado, GastoRubro, FechaInicio, FechaFin FROM Presupuesto where IdRubro=@idRubro";
-
-                cmdPresupuesto.Parameters.AddWithValue("@idRubro", detalle.IdRubro);
-
-
-
+                cmdPresupuesto.Parameters.AddWithValue("@idRubro", idRubro);
 
                 SqlDataReader reader = cmdPresupuesto.ExecuteReader();
-                
 
                 while (reader.Read())
                 {
                     gastoRubro = reader.GetDecimal("GastoRubro");
-                    puedeGastar = detalle.Valor <= (reader.GetDecimal("Estimado") - gastoRubro);
+                    puedeGastar = valorAGastar <= (reader.GetDecimal("Estimado") - gastoRubro);
                 }
 
-                if (!puedeGastar) { return "Excede el presupuesto estimado"; }
                 conn.Close();
+                return new PuedeGastarResponse() {GastoRubro = gastoRubro, PuedeGastar = puedeGastar};
+            }
+        }
+
+        private void ActualizaGastoEnPresupuesto(decimal gastoRubro, decimal valorAGastar, string idRubro, int idPresupuesto)
+        {
+            using (SqlConnection conn = Connection.ObtenerConexion())
+            {
+                SqlCommand cmdActualizaPresupuesto = new SqlCommand();
+                cmdActualizaPresupuesto.Connection = conn;
+
+                cmdActualizaPresupuesto.Connection = conn;
+                cmdActualizaPresupuesto.CommandText = @"UPDATE Presupuesto SET GastoRubro= @gastoRubro WHERE (IdRubro= @idRubro AND IdPresupuesto= @idPresupuesto)";
+                cmdActualizaPresupuesto.Parameters.AddWithValue("@gastoRubro", gastoRubro + valorAGastar);
+                cmdActualizaPresupuesto.Parameters.AddWithValue("@idRubro", idRubro);
+                cmdActualizaPresupuesto.Parameters.AddWithValue("@idPresupuesto", idPresupuesto);
+
+                cmdActualizaPresupuesto.ExecuteNonQuery();
+
+                conn.Close();  
+            }
+        }
+
+        public async Task<string> AgregarGasto(AgregarGastoRequest detalle)
+        {
+            //Se generan ids de manera random
+            Random rnd = new Random();
+            var parteEntera = rnd.Next(10000000, 100000000);
+            var idGasto = detalle.IdRubro + parteEntera;
+
+            //Se verifica que se pueda hacer ese gasto
+            var puedeGastarResponse = this.PuedeGastar(detalle.IdRubro, detalle.Valor);
+            if (!puedeGastarResponse.PuedeGastar) { return "Excede el presupuesto estimado"; }
+
+            //Se inserta un gasto a la tabla de gastos
+            SqlConnection conn = Connection.ObtenerConexion();
+            using (SqlCommand cdmAgregaGasto = new SqlCommand())
+            {
+                cdmAgregaGasto.Connection = conn;
+                cdmAgregaGasto.CommandType = CommandType.Text;
+                cdmAgregaGasto.CommandText = @"INSERT INTO Gastos(Id,IdPresupuesto,Valor,Consumidor,Fecha) VALUES (@idGasto,@idPresupuesto,@valor,@consumidor,@fecha)";
+
+                cdmAgregaGasto.Parameters.AddWithValue("@idGasto", idGasto);
+                cdmAgregaGasto.Parameters.AddWithValue("@idPresupuesto", detalle.IdPresupuesto);
+                cdmAgregaGasto.Parameters.AddWithValue("@valor", detalle.Valor);
+                cdmAgregaGasto.Parameters.AddWithValue("@consumidor", detalle.Consumidor);
+                cdmAgregaGasto.Parameters.AddWithValue("@fecha", DateTime.UtcNow.AddHours(-3));
+
+                cdmAgregaGasto.ExecuteNonQuery();
             }
 
-            SqlConnection conn2 = Connection.ObtenerConexion();
-                //Se inserta un gasto a la tabla de gastos
-                using (SqlCommand cmd = new SqlCommand())
-                {
-                    cmd.Connection = conn2;
-                    cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = @"INSERT INTO Gastos(Id,IdPresupuesto,Valor,Consumidor,Fecha) VALUES (@idGasto,@idPresupuesto,@valor,@consumidor,@fecha)";
+            conn.Close();
 
-                    cmd.Parameters.AddWithValue("@idGasto", idGasto);
-                    cmd.Parameters.AddWithValue("@idPresupuesto", detalle.IdPresupuesto);
-                    cmd.Parameters.AddWithValue("@valor", detalle.Valor);
-                    cmd.Parameters.AddWithValue("@consumidor", detalle.Consumidor);
-                    cmd.Parameters.AddWithValue("@fecha", DateTime.UtcNow.AddHours(-3));
-
-                    //conn.Open();
-                    cmd.ExecuteNonQuery();
-
-
-
-            }
-
-            //Se actualiza tabla Presupuesto
-            conn2.Close();
-            SqlConnection conn3 = Connection.ObtenerConexion();
-            using (SqlCommand cmdUpdatePresupuesto = new SqlCommand())
-             {
-                
-                cmdUpdatePresupuesto.Connection = conn3;
-                cmdUpdatePresupuesto.CommandText = @"UPDATE Presupuesto SET GastoRubro= @valor WHERE (IdRubro= @idRubro AND IdPresupuesto= @idPresupuesto)";
-                    cmdUpdatePresupuesto.Parameters.AddWithValue("@valor", gastoRubro + detalle.Valor);
-                    cmdUpdatePresupuesto.Parameters.AddWithValue("@idRubro", detalle.IdRubro);
-                    cmdUpdatePresupuesto.Parameters.AddWithValue("@idPresupuesto", detalle.IdPresupuesto);
-
-                cmdUpdatePresupuesto.ExecuteNonQuery();
-                
-            }
-            conn3.Close();
-
+            //Se actualiza gasto en el presupuesto
+            this.ActualizaGastoEnPresupuesto(puedeGastarResponse.GastoRubro,detalle.Valor,detalle.IdRubro,detalle.IdPresupuesto);
+            
             return idGasto;
             
         }
+
 
         public async Task<string> EliminarGasto(string IdGasto)
         {

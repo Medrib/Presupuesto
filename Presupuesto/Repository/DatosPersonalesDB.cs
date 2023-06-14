@@ -62,6 +62,8 @@ namespace Presupuesto.Repository
             }
         }
 
+ 
+
         public async Task<string> EliminarCliente(int dni)
         {
             using (SqlConnection conn = Connection.ObtenerConexion())

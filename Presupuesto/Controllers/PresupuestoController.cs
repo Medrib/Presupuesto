@@ -57,6 +57,10 @@ namespace Presupuesto.Controllers
         [HttpPost("/AgregarPresupuesto", Name = "AgregarPresupuesto")]
         public async Task<int> AgregarPresupuesto(RequestPresupuesto request)
             => await _presupuestosDB.AgregarPresupuesto(request);
+
+        [HttpGet("/EstadoPresupuesto", Name = "EstadoPresupuesto")]
+        public async Task<List<EstadoPresupuesto>> EstadoPresupuesto(string idPresupuesto)
+            => await _presupuestosDB.EstadoPresupuesto(idPresupuesto);
     }
 
 

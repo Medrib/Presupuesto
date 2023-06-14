@@ -3,6 +3,8 @@ using System.Data.SqlClient;
 using Presupuesto.DataBase;
 using System.Data;
 
+
+
 namespace Presupuesto.Repository
 {
     public class PresupuestosDB
@@ -51,5 +53,36 @@ namespace Presupuesto.Repository
                 }
             }
         }
+
+        public async Task<List<EstadoPresupuesto>> EstadoPresupuesto(string idPresupuesto)
+        {
+            using (SqlConnection connection = Connection.ObtenerConexion())
+            {
+                SqlCommand command = new SqlCommand(
+                    string.Format("SELECT IdPresupuesto, IdRubro, Rubro, Responsable, Estimado, GastoRubro, FechaInicio, FechaFin FROM Presupuesto WHERE Idpresupuesto={0}", idPresupuesto),
+                      connection
+
+                );
+
+                SqlDataReader reader = command.ExecuteReader();
+
+                var consulta = new List<EstadoPresupuesto>();
+         
+                    while (reader.Read())
+                    {
+                      var presupuesto = new EstadoPresupuesto()
+                       {
+                           Rubro = reader.GetString("Rubro"),
+                            Disponible = reader.GetDecimal("Estimado") - reader.GetDecimal("GastoRubro")
+
+                       };
+                       consulta.Add(presupuesto);
+                    }
+           
+                connection.Close();
+                return consulta;
+                }
+            }
+        }
     }
-}
+

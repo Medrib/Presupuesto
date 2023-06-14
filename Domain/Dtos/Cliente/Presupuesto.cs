@@ -16,6 +16,7 @@ namespace Domain.Dtos.Cliente
         public string Rubro { get; set; }
         public int Responsable { get; set; }
         public decimal Estimado { get; set; }
+        public decimal GastoRubro { get; set; }
         public DateTime FechaInicio { get; set; }
         public DateTime FechaFin { get; set; }
     }
@@ -36,5 +37,11 @@ namespace Domain.Dtos.Cliente
         public string Rubro { get; set; }
         public decimal Estimado { get; set; }
 
+    }
+
+    public class EstadoPresupuesto
+    {
+        public string Rubro { get;set; }
+        public decimal Disponible { get; set; }
     }
 }

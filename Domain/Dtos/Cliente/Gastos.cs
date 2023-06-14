@@ -21,4 +21,10 @@ namespace Domain.Dtos.Cliente
         public decimal Valor { get; set; }
         public int Consumidor { get; set; }
     }
+
+    public class PuedeGastarResponse
+    {
+        public bool PuedeGastar { get; set; }
+        public decimal GastoRubro { get; set; }
+    }
 }
