@@ -107,15 +107,45 @@ namespace Presupuesto.Repository
             Random rnd = new Random();
             var parteEntera = rnd.Next(10000000, 100000000);
             var idGasto = detalle.IdRubro + parteEntera;
+
+            decimal gastoRubro = 0;
+            var puedeGastar = false;
+
             using (SqlConnection conn = Connection.ObtenerConexion())
             {
+                SqlCommand cmdPresupuesto = new SqlCommand();
+                cmdPresupuesto.Connection = conn;
+                cmdPresupuesto.CommandType = CommandType.Text;
+                cmdPresupuesto.CommandText = @"SELECT IdPresupuesto, IdRubro, Rubro, Responsable, Estimado, GastoRubro, FechaInicio, FechaFin FROM Presupuesto where IdRubro=@idRubro";
+
+                cmdPresupuesto.Parameters.AddWithValue("@idRubro", detalle.IdRubro);
+
+
+
+
+                SqlDataReader reader = cmdPresupuesto.ExecuteReader();
+                
+
+                while (reader.Read())
+                {
+                    gastoRubro = reader.GetDecimal("GastoRubro");
+                    puedeGastar = detalle.Valor <= (reader.GetDecimal("Estimado") - gastoRubro);
+                }
+
+                if (!puedeGastar) { return "Excede el presupuesto estimado"; }
+                conn.Close();
+            }
+
+            SqlConnection conn2 = Connection.ObtenerConexion();
+                //Se inserta un gasto a la tabla de gastos
                 using (SqlCommand cmd = new SqlCommand())
                 {
-                    cmd.Connection = conn;
+                    cmd.Connection = conn2;
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = @"INSERT INTO Gastos(Id,Valor,Consumidor,Fecha) VALUES (@idGasto,@valor,@consumidor,@fecha)";
+                    cmd.CommandText = @"INSERT INTO Gastos(Id,IdPresupuesto,Valor,Consumidor,Fecha) VALUES (@idGasto,@idPresupuesto,@valor,@consumidor,@fecha)";
 
                     cmd.Parameters.AddWithValue("@idGasto", idGasto);
+                    cmd.Parameters.AddWithValue("@idPresupuesto", detalle.IdPresupuesto);
                     cmd.Parameters.AddWithValue("@valor", detalle.Valor);
                     cmd.Parameters.AddWithValue("@consumidor", detalle.Consumidor);
                     cmd.Parameters.AddWithValue("@fecha", DateTime.UtcNow.AddHours(-3));
@@ -123,10 +153,29 @@ namespace Presupuesto.Repository
                     //conn.Open();
                     cmd.ExecuteNonQuery();
 
-                    conn.Close();
-                    return idGasto;
-                }
+
+
             }
+
+            //Se actualiza tabla Presupuesto
+            conn2.Close();
+            SqlConnection conn3 = Connection.ObtenerConexion();
+            using (SqlCommand cmdUpdatePresupuesto = new SqlCommand())
+             {
+                
+                cmdUpdatePresupuesto.Connection = conn3;
+                cmdUpdatePresupuesto.CommandText = @"UPDATE Presupuesto SET GastoRubro= @valor WHERE (IdRubro= @idRubro AND IdPresupuesto= @idPresupuesto)";
+                    cmdUpdatePresupuesto.Parameters.AddWithValue("@valor", gastoRubro + detalle.Valor);
+                    cmdUpdatePresupuesto.Parameters.AddWithValue("@idRubro", detalle.IdRubro);
+                    cmdUpdatePresupuesto.Parameters.AddWithValue("@idPresupuesto", detalle.IdPresupuesto);
+
+                cmdUpdatePresupuesto.ExecuteNonQuery();
+                
+            }
+            conn3.Close();
+
+            return idGasto;
+            
         }
 
         public async Task<string> EliminarGasto(string IdGasto)

@@ -16,6 +16,7 @@ namespace Domain.Dtos.Cliente
 
     public class AgregarGastoRequest
     {
+        public int IdPresupuesto { get; set; }
         public string IdRubro { get; set; } //IND
         public decimal Valor { get; set; }
         public int Consumidor { get; set; }

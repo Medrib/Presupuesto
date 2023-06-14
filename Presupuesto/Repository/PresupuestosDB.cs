@@ -27,8 +27,8 @@ namespace Presupuesto.Repository
 
                     while (i <= cantElementos)
                     {
-                        cmd.CommandText = string.Format(@"INSERT INTO Presupuesto(IdPresupuesto,IdRubro,Rubro,Responsable,Estimado,FechaInicio,FechaFin) 
-                                            VALUES (@idPresupuesto{0},@idRubro{0},@rubro{0},@responsable{0},@estimado{0},@fechaInicio{0},@fechaFin{0})", i);
+                        cmd.CommandText = string.Format(@"INSERT INTO Presupuesto(IdPresupuesto,IdRubro,Rubro,Responsable,Estimado, GastoRubro, FechaInicio,FechaFin) 
+                                            VALUES (@idPresupuesto{0},@idRubro{0},@rubro{0},@responsable{0},@estimado{0},@gastoRubro{0}, @fechaInicio{0},@fechaFin{0})", i);
 
                         detalle = request.detallePresupuesto[i];
                         cmd.Parameters.AddWithValue("@idPresupuesto" + i, idPresupuesto);
@@ -36,6 +36,7 @@ namespace Presupuesto.Repository
                         cmd.Parameters.AddWithValue("@rubro" + i, detalle.Rubro);
                         cmd.Parameters.AddWithValue("@responsable" + i, request.Responsable);
                         cmd.Parameters.AddWithValue("@estimado" + i, detalle.Estimado);
+                        cmd.Parameters.AddWithValue("@gastoRubro" + i, 0);
                         cmd.Parameters.AddWithValue("@fechaInicio" + i, horarioArg);
                         cmd.Parameters.AddWithValue("@fechaFin" + i, horarioArg.AddDays(request.DuracionPresupuesto));
                         cmd.ExecuteNonQuery();
