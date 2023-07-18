@@ -13,6 +13,7 @@ namespace Presupuesto.Controllers
         private DatosPersonalesDB _datosPersonalesDB = new DatosPersonalesDB();
         private GastosDB _gastosDB = new GastosDB();
         private PresupuestosDB _presupuestosDB = new PresupuestosDB();
+        private ValidacionUsuarioDB _validacionUsuarioDB = new ValidacionUsuarioDB();
 
         public PresupuestoController(ILogger<WeatherForecastController> logger)
         {
@@ -61,6 +62,10 @@ namespace Presupuesto.Controllers
         [HttpGet("/EstadoPresupuesto", Name = "EstadoPresupuesto")]
         public async Task<List<EstadoPresupuesto>> EstadoPresupuesto(string idPresupuesto)
             => await _presupuestosDB.EstadoPresupuesto(idPresupuesto);
+
+        [HttpGet("/ValidarUsuario/{user}/{password}", Name = "ValidarUsuario")]
+        public async Task<bool> ValidarUsuario(string user, string password)
+            => await _validacionUsuarioDB.ValidarUsuario(user, password);
     }
 
 

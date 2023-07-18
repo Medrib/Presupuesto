@@ -1,10 +1,7 @@
-﻿using Azure;
-using Domain.Dtos.Cliente;
+﻿using Domain.Dtos.Cliente;
 using Presupuesto.DataBase;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Net;
 
 namespace Presupuesto.Repository
 {

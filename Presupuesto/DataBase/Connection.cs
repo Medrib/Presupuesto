@@ -10,7 +10,7 @@ namespace Presupuesto.DataBase
     {
         public static SqlConnection ObtenerConexion()
         {
-            SqlConnection Conn = new SqlConnection("Data Source=MEDRANO; Initial Catalog=Cliente;User Id=Admin; Password=Junio2023!");
+            SqlConnection Conn = new SqlConnection("Data Source=NBCORAR860\\SQLEXPRESS; Initial Catalog=Cliente;User Id=sa; Password=Mayo2020");
             Conn.Open();
 
             return Conn;
