@@ -73,8 +73,8 @@ namespace Presupuesto.Repository
 
         public async Task<List<Gastos>> GastosPorMesAño(string mesAño)
         {
+
             var fecha = mesAñoIntParse(mesAño);
-            var gastoMes = new List<Gastos>();
        
             using (SqlConnection connection = Connection.ObtenerConexion())
             {
@@ -84,17 +84,22 @@ namespace Presupuesto.Repository
                 );
 
                 SqlDataReader reader = command.ExecuteReader();
-                var gasto = new Gastos();
+                                 
+                var gastoMes = new List<Gastos>();
 
                 while (reader.Read())
                 {
-                        gasto.Id = reader.GetString(0);
-                        gasto.IdPresupuesto = reader.GetInt32(1);
-                        gasto.Gasto = reader.GetDecimal(2);
-                        gasto.Usuario = reader.GetString(3);
-                        gasto.FechaCreacion = reader.GetDateTime(4);
-                        gasto.Mes = reader.GetInt32(5);
-                        gasto.Año = reader.GetInt32(6);
+                    var gasto = new Gastos()
+                    {
+                        Id = reader.GetString(0),
+                        IdPresupuesto = reader.GetInt32(1),
+                        Gasto = reader.GetDecimal(2),
+                        Usuario = reader.GetString(3),
+                        FechaCreacion = reader.GetDateTime(4),
+                        Mes = reader.GetInt32(5),
+                        Año = reader.GetInt32(6),
+
+                    };
                         gastoMes.Add(gasto);                        
                 }
                 connection.Close();
