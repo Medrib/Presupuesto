@@ -36,7 +36,6 @@ namespace Presupuesto.Repository
 
         public async Task<List<DatosPersonales>> Clientes()
         {
-            var clientes = new List<DatosPersonales>();
             using (SqlConnection connection = Connection.ObtenerConexion())
             {
                 SqlCommand command = new SqlCommand(
@@ -45,15 +44,20 @@ namespace Presupuesto.Repository
                 );
 
                 SqlDataReader reader = command.ExecuteReader();
-                var cliente = new DatosPersonales();
+
+                var clientes = new List<DatosPersonales>();
 
                 while (reader.Read())
                 {
-                    cliente.Dni = reader.GetInt32(0);
-                    cliente.Nombre = reader.GetString(1);
-                    cliente.Apellido = reader.GetString(2);
-                    cliente.Domicilio = reader.GetString(3);
-                    cliente.Fecha_Nacimiento = reader.GetDateTime(4);
+                    var cliente = new DatosPersonales()
+                    {
+                        Dni = reader.GetInt32(0),
+                        Nombre = reader.GetString(1),
+                        Apellido = reader.GetString(2),
+                        Domicilio = reader.GetString(3),
+                        Fecha_Nacimiento = reader.GetDateTime(4)
+
+                    };
                     clientes.Add(cliente);
                 }
 
@@ -62,9 +66,7 @@ namespace Presupuesto.Repository
             }
         }
 
- 
-
-        public async Task<string> EliminarCliente(int dni)
+         public async Task<string> EliminarCliente(int dni)
         {
             using (SqlConnection conn = Connection.ObtenerConexion())
             {
@@ -84,6 +86,11 @@ namespace Presupuesto.Repository
                 }
             }
         }
+
+        //public async Task<DatosPersonales> CrearUsuario(DatosPersonales nuevoCliente)
+        //{
+
+        //}
     }
 }
   

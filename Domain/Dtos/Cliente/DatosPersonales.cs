@@ -14,4 +14,6 @@ namespace Domain.Dtos.Cliente
         public string Domicilio { get; set; }
         public DateTime Fecha_Nacimiento { get; set; }
     }
+
+  
 }

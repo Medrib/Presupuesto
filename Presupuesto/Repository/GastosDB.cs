@@ -7,75 +7,79 @@ namespace Presupuesto.Repository
 {
     public class GastosDB
     {
-        public async Task<List<Gastos>> ObtenerGastosTotales()
+        //public async Task<List<Gastos>> ObtenerGastosTotales()
+        //{
+        //    using (SqlConnection connection = Connection.ObtenerConexion())
+        //    {
+        //        SqlCommand command = new SqlCommand(
+        //          string.Format("SELECT Id, Valor, Consumidor, Fecha FROM Gastos"),
+        //            connection
+        //      );
+
+        //        SqlDataReader reader = command.ExecuteReader();
+
+        //        var gastos = new List<Gastos>();
+
+        //        while (reader.Read())
+        //        {
+        //            var gastoData = new Gastos()
+        //            {
+        //               Id = reader.GetString(0),
+        //               Valor = reader.GetDecimal(1),
+        //               Consumidor = reader.GetInt32(2),
+        //               Fecha = reader.GetDateTime(3)
+        //            };
+        //            gastos.Add(gastoData);
+        //        }
+
+        //        connection.Close();
+
+        //        return gastos;
+
+        //    }
+        //}
+
+        //public async Task<List<Gastos>> GastosPorProducto(string idRubro)
+        //{
+        //    var gastos = new List<Gastos>();
+        //    //idRubro example: IND
+        //    using (SqlConnection connection = Connection.ObtenerConexion())
+        //    {
+        //        SqlCommand command = new SqlCommand(
+        //            string.Format("SELECT Id, Valor, Consumidor, Fecha FROM Gastos"),
+        //              connection
+        //        );
+
+        //        SqlDataReader reader = command.ExecuteReader();
+        //        var gasto = new Gastos();
+
+        //        while (reader.Read())
+        //        {
+        //            if(reader.GetString(0).Contains(idRubro.ToUpper()))
+        //            {
+        //                gasto.Id = reader.GetString(0);
+        //                gasto.Valor = reader.GetDecimal(1);
+        //                gasto.Consumidor = reader.GetInt32(2);
+        //                gasto.Fecha = reader.GetDateTime(4);
+        //                gastos.Add(gasto);
+        //            }
+
+        //        }
+
+        //        connection.Close();
+        //        return gastos;
+        //    }
+        //}
+
+        public async Task<List<Gastos>> GastosPorMesAño(string mesAño)
         {
-            var gastos = new List<Gastos>();
-            using (SqlConnection connection = Connection.ObtenerConexion())
-            {
-                SqlCommand command = new SqlCommand(
-                  string.Format("SELECT Id, Valor, Consumidor, Fecha FROM Gastos"),
-                    connection
-              );
-
-                SqlDataReader reader = command.ExecuteReader();
-
-                var gastoData = new Gastos();
-                while (reader.Read())
-                {
-                    gastoData.Id = reader.GetString(0);
-                    gastoData.Valor = reader.GetDecimal(1);
-                    gastoData.Consumidor = reader.GetInt32(2);
-                    gastoData.Fecha = reader.GetDateTime(3);
-                    gastos.Add(gastoData);
-                }
-
-                connection.Close();
-
-                return gastos;
-
-            }
-        }
-
-        public async Task<List<Gastos>> GastosPorProducto(string idRubro)
-        {
-            var gastos = new List<Gastos>();
-            //idRubro example: IND
-            using (SqlConnection connection = Connection.ObtenerConexion())
-            {
-                SqlCommand command = new SqlCommand(
-                    string.Format("SELECT Id, Valor, Consumidor, Fecha FROM Gastos"),
-                      connection
-                );
-
-                SqlDataReader reader = command.ExecuteReader();
-                var gasto = new Gastos();
-
-                while (reader.Read())
-                {
-                    if(reader.GetString(0).Contains(idRubro.ToUpper()))
-                    {
-                        gasto.Id = reader.GetString(0);
-                        gasto.Valor = reader.GetDecimal(1);
-                        gasto.Consumidor = reader.GetInt32(2);
-                        gasto.Fecha = reader.GetDateTime(4);
-                        gastos.Add(gasto);
-                    }
-
-                }
-
-                connection.Close();
-                return gastos;
-            }
-        }
-
-        public async Task<List<Gastos>> GastosPorMes(int mes)
-        {
+            var fecha = mesAñoIntParse(mesAño);
             var gastoMes = new List<Gastos>();
        
             using (SqlConnection connection = Connection.ObtenerConexion())
             {
                 SqlCommand command = new SqlCommand(
-                    string.Format("SELECT Id, Valor, Consumidor, Fecha FROM Gastos"),
+                    string.Format("SELECT * FROM Gastos WHERE Mes={0} AND Anio={1};", fecha.Mes, fecha.Año),
                       connection
                 );
 
@@ -84,16 +88,14 @@ namespace Presupuesto.Repository
 
                 while (reader.Read())
                 {
-                    if(reader.GetDateTime(3).Month == mes && mes <= 12 && mes >= 1)
-                    {
                         gasto.Id = reader.GetString(0);
-                        gasto.Valor = reader.GetDecimal(1);
-                        gasto.Consumidor = reader.GetInt32(2);
-                        gasto.Fecha = reader.GetDateTime(3);
-                        gastoMes.Add(gasto);
-
-                    }
-                        
+                        gasto.IdPresupuesto = reader.GetInt32(1);
+                        gasto.Gasto = reader.GetDecimal(2);
+                        gasto.Usuario = reader.GetString(3);
+                        gasto.FechaCreacion = reader.GetDateTime(4);
+                        gasto.Mes = reader.GetInt32(5);
+                        gasto.Año = reader.GetInt32(6);
+                        gastoMes.Add(gasto);                        
                 }
                 connection.Close();
                 return gastoMes;
@@ -202,6 +204,19 @@ namespace Presupuesto.Repository
                     return "El gasto se eliminó correctamente.";
                 }
             }
+        }
+            
+        private MesAño mesAñoIntParse(string MesAño) {
+
+            var mes = 0;
+            var año = 0;
+
+            int position = MesAño.IndexOf("-");
+
+            año = Int32.Parse(MesAño.Substring(0, position));
+            mes = Int32.Parse(MesAño.Substring(position + 1));
+            
+            return new MesAño() { Mes = mes, Año = año};
         }
     }
 }

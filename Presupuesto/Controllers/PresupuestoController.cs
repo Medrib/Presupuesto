@@ -29,27 +29,27 @@ namespace Presupuesto.Controllers
         public async Task<List<DatosPersonales>> ObtenerClientes()
             => await _datosPersonalesDB.Clientes();
 
-        [HttpGet("/ObtenerGastosPorProducto", Name = "ObtenerGastosPorProducto")]
-        public async Task<List<Gastos>> ObtenerGastosPorProducto(string idProducto)
-            => await _gastosDB.GastosPorProducto(idProducto);
+        //[HttpGet("/ObtenerGastosPorProducto", Name = "ObtenerGastosPorProducto")]
+        //public async Task<List<Gastos>> ObtenerGastosPorProducto(string idProducto)
+        //    => await _gastosDB.GastosPorProducto(idProducto);
 
 
-        [HttpGet("/ObtenerGastosTotales", Name = "ObtenerGastosTotales")]
-        public async Task<List<Gastos>> ObtenerGastosTotales()
-            => await _gastosDB.ObtenerGastosTotales();
+        //[HttpGet("/ObtenerGastosTotales", Name = "ObtenerGastosTotales")]
+        //public async Task<List<Gastos>> ObtenerGastosTotales()
+        //    => await _gastosDB.ObtenerGastosTotales();
 
 
-        [HttpPost("/AgregarGasto", Name = "AgregarGasto")]
-        public async Task<string> AgregarGasto(AgregarGastoRequest detalle)
-            => await _gastosDB.AgregarGasto(detalle);
+        //[HttpPost("/AgregarGasto", Name = "AgregarGasto")]
+        //public async Task<string> AgregarGasto(AgregarGastoRequest detalle)
+        //    => await _gastosDB.AgregarGasto(detalle);
 
-        [HttpDelete("/EliminarGasto", Name = "EliminarGasto")]
-        public async Task<string> EliminarGasto(string idGasto)
-            => await _gastosDB.EliminarGasto(idGasto);
+        //[HttpDelete("/EliminarGasto", Name = "EliminarGasto")]
+        //public async Task<string> EliminarGasto(string idGasto)
+        //    => await _gastosDB.EliminarGasto(idGasto);
 
-        [HttpGet("/GastosPorMes", Name = "GastosPorMes")]
-        public async Task<List<Gastos>> GastosPorMes(int mes)
-            => await _gastosDB.GastosPorMes(mes);
+        [HttpGet("/GastosPorMesAño", Name = "GastosPorMesAño")]
+        public async Task<List<Gastos>> GastosPorMesAño(string mesAño)
+            => await _gastosDB.GastosPorMesAño(mesAño);
 
         [HttpDelete("/EliminarCliente",Name ="EliminarCliente")]
         public async Task<string> EliminarCliente(int dni)

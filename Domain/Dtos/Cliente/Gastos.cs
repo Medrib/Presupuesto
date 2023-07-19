@@ -9,9 +9,12 @@ namespace Domain.Dtos.Cliente
     public class Gastos
     {
         public string Id { get; set; } //IND00000001
-        public decimal Valor { get; set; }
-        public Int32 Consumidor { get; set; }
-        public DateTime Fecha { get; set; }
+        public Int32 IdPresupuesto { get; set; }
+        public decimal Gasto { get; set; }
+        public string Usuario { get; set; }
+        public DateTime FechaCreacion { get; set; }
+        public Int32 Mes { get; set; }
+        public Int32 Año { get; set; }
     }
 
     public class AgregarGastoRequest
@@ -26,5 +29,11 @@ namespace Domain.Dtos.Cliente
     {
         public bool PuedeGastar { get; set; }
         public decimal GastoRubro { get; set; }
+    }
+
+    public class MesAño
+    {
+        public Int32 Mes { get; set; }
+        public Int32 Año { get; set; }
     }
 }

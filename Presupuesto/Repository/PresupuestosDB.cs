@@ -73,7 +73,7 @@ namespace Presupuesto.Repository
                       var presupuesto = new EstadoPresupuesto()
                        {
                            Rubro = reader.GetString("Rubro"),
-                            Disponible = reader.GetDecimal("Estimado") - reader.GetDecimal("GastoRubro")
+                           Disponible = reader.GetDecimal("Estimado") - reader.GetDecimal("GastoRubro")
 
                        };
                        consulta.Add(presupuesto);
@@ -81,8 +81,8 @@ namespace Presupuesto.Repository
            
                 connection.Close();
                 return consulta;
-                }
             }
         }
     }
+}
 
