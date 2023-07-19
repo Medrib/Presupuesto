@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Domain.Dtos.Cliente
 {
@@ -11,14 +9,15 @@ namespace Domain.Dtos.Cliente
     {
         [Key]
         public int Id { get; set; }
-        public string IdPresupuesto { get; set; }
+        public int IdPresupuesto { get; set; }//100000, 999999
         public string IdRubro { get; set; }
         public string Rubro { get; set; }
-        public int Responsable { get; set; }
-        public decimal Estimado { get; set; }
+        public string Usuario { get; set; }
+        public decimal Presupuesto { get; set; }
         public decimal GastoRubro { get; set; }
-        public DateTime FechaInicio { get; set; }
-        public DateTime FechaFin { get; set; }
+        public DateTime FechaDeCreacion { get; set; }
+        public Int32 Anio { get; set; }
+        public Int32 Mes { get; set; }
     }
 
     public class RequestPresupuesto

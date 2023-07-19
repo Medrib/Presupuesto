@@ -1,4 +1,5 @@
 ﻿using Domain.Dtos.Cliente;
+using Domain.Shared;
 using Presupuesto.DataBase;
 using System.Data;
 using System.Data.SqlClient;
@@ -74,7 +75,7 @@ namespace Presupuesto.Repository
         public async Task<List<Gastos>> GastosPorMesAño(string mesAño)
         {
 
-            var fecha = mesAñoIntParse(mesAño);
+            var fecha = Functions.mesAñoIntParse(mesAño);
        
             using (SqlConnection connection = Connection.ObtenerConexion())
             {
@@ -117,15 +118,15 @@ namespace Presupuesto.Repository
                 SqlCommand cmdPresupuesto = new SqlCommand();
                 cmdPresupuesto.Connection = conn;
                 cmdPresupuesto.CommandType = CommandType.Text;
-                cmdPresupuesto.CommandText = @"SELECT IdPresupuesto, IdRubro, Rubro, Responsable, Estimado, GastoRubro, FechaInicio, FechaFin FROM Presupuesto where IdRubro=@idRubro";
+                cmdPresupuesto.CommandText = @"SELECT IdPresupuesto, IdRubro, Rubro, Usuario, Presupuesto, Gastado, FechaDeCreacion, Mes, Anio FROM Presupuesto where IdRubro=@idRubro";
                 cmdPresupuesto.Parameters.AddWithValue("@idRubro", idRubro);
 
                 SqlDataReader reader = cmdPresupuesto.ExecuteReader();
 
                 while (reader.Read())
                 {
-                    gastoRubro = reader.GetDecimal("GastoRubro");
-                    puedeGastar = valorAGastar <= (reader.GetDecimal("Estimado") - gastoRubro);
+                    gastoRubro = reader.GetDecimal("Gastado");
+                    puedeGastar = valorAGastar <= (reader.GetDecimal("Presupuesto") - gastoRubro);
                 }
 
                 conn.Close();
@@ -160,7 +161,7 @@ namespace Presupuesto.Repository
             var idGasto = detalle.IdRubro + parteEntera;
 
             //Se verifica que se pueda hacer ese gasto
-            var puedeGastarResponse = this.PuedeGastar(detalle.IdRubro, detalle.Valor);
+            var puedeGastarResponse = this.PuedeGastar(detalle.IdRubro, detalle.Gasto);
             if (!puedeGastarResponse.PuedeGastar) { return "Excede el presupuesto estimado"; }
 
             //Se inserta un gasto a la tabla de gastos
@@ -169,13 +170,15 @@ namespace Presupuesto.Repository
             {
                 cdmAgregaGasto.Connection = conn;
                 cdmAgregaGasto.CommandType = CommandType.Text;
-                cdmAgregaGasto.CommandText = @"INSERT INTO Gastos(Id,IdPresupuesto,Valor,Consumidor,Fecha) VALUES (@idGasto,@idPresupuesto,@valor,@consumidor,@fecha)";
+                cdmAgregaGasto.CommandText = @"INSERT INTO Gastos(Id,IdPresupuesto,Gasto,Usuario,FechaCreacion, Mes, Anio) VALUES (@idGasto,@idPresupuesto,@gasto,@usuario,@fechaCreacion, @mes, @anio)";
 
                 cdmAgregaGasto.Parameters.AddWithValue("@idGasto", idGasto);
                 cdmAgregaGasto.Parameters.AddWithValue("@idPresupuesto", detalle.IdPresupuesto);
-                cdmAgregaGasto.Parameters.AddWithValue("@valor", detalle.Valor);
-                cdmAgregaGasto.Parameters.AddWithValue("@consumidor", detalle.Consumidor);
-                cdmAgregaGasto.Parameters.AddWithValue("@fecha", DateTime.UtcNow.AddHours(-3));
+                cdmAgregaGasto.Parameters.AddWithValue("@gasto", detalle.Gasto);
+                cdmAgregaGasto.Parameters.AddWithValue("@usuario", detalle.Usuario);
+                cdmAgregaGasto.Parameters.AddWithValue("@fechaCreacion", DateTime.UtcNow.AddHours(-3));
+                cdmAgregaGasto.Parameters.AddWithValue("@mes", DateTime.UtcNow.AddHours(-3).Month);
+                cdmAgregaGasto.Parameters.AddWithValue("@anio", DateTime.UtcNow.AddHours(-3).Year);
 
                 cdmAgregaGasto.ExecuteNonQuery();
             }
@@ -183,7 +186,7 @@ namespace Presupuesto.Repository
             conn.Close();
 
             //Se actualiza gasto en el presupuesto
-            this.ActualizaGastoEnPresupuesto(puedeGastarResponse.GastoRubro,detalle.Valor,detalle.IdRubro,detalle.IdPresupuesto);
+           // this.ActualizaGastoEnPresupuesto(puedeGastarResponse.GastoRubro,detalle.Gasto,detalle.IdRubro,detalle.IdPresupuesto);
             
             return idGasto;
             
@@ -210,18 +213,6 @@ namespace Presupuesto.Repository
                 }
             }
         }
-            
-        private MesAño mesAñoIntParse(string MesAño) {
 
-            var mes = 0;
-            var año = 0;
-
-            int position = MesAño.IndexOf("-");
-
-            año = Int32.Parse(MesAño.Substring(0, position));
-            mes = Int32.Parse(MesAño.Substring(position + 1));
-            
-            return new MesAño() { Mes = mes, Año = año};
-        }
     }
 }

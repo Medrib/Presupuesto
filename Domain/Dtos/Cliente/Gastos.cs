@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 
 namespace Domain.Dtos.Cliente
 {
@@ -19,10 +15,10 @@ namespace Domain.Dtos.Cliente
 
     public class AgregarGastoRequest
     {
-        public int IdPresupuesto { get; set; }
+        public int IdPresupuesto { get; set; } //123456
         public string IdRubro { get; set; } //IND
-        public decimal Valor { get; set; }
-        public int Consumidor { get; set; }
+        public decimal Gasto { get; set; }
+        public string Usuario { get; set; }
     }
 
     public class PuedeGastarResponse
@@ -31,9 +27,5 @@ namespace Domain.Dtos.Cliente
         public decimal GastoRubro { get; set; }
     }
 
-    public class MesAño
-    {
-        public Int32 Mes { get; set; }
-        public Int32 Año { get; set; }
-    }
+
 }
