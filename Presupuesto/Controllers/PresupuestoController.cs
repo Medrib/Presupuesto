@@ -63,9 +63,9 @@ namespace Presupuesto.Controllers
         public async Task<int> AgregarPresupuesto(RequestPresupuesto request)
             => await _presupuestosDB.AgregarPresupuesto(request);
 
-        //[HttpGet("/EstadoPresupuesto", Name = "EstadoPresupuesto")]
-        //public async Task<List<EstadoPresupuesto>> EstadoPresupuesto(string idPresupuesto)
-        //    => await _presupuestosDB.EstadoPresupuesto(idPresupuesto);
+        [HttpGet("/EstadoPresupuesto", Name = "EstadoPresupuesto")]
+        public async Task<List<EstadoPresupuesto>> EstadoPresupuesto(string idPresupuesto)
+            => await _presupuestosDB.EstadoPresupuesto(idPresupuesto);
 
         [HttpGet("/ValidarUsuario/{user}/{password}", Name = "ValidarUsuario")]
         public async Task<bool> ValidarUsuario(string user, string password)

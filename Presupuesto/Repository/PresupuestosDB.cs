@@ -54,36 +54,36 @@ namespace Presupuesto.Repository
             }
         }
 
-        //public async Task<List<EstadoPresupuesto>> EstadoPresupuesto(string idPresupuesto)
-        //{
-        //    using (SqlConnection connection = Connection.ObtenerConexion())
-        //    {
-        //        SqlCommand command = new SqlCommand(
-        //            string.Format("SELECT IdPresupuesto, IdRubro, Rubro, Responsable, Estimado, GastoRubro, FechaInicio, FechaFin FROM Presupuesto WHERE Idpresupuesto={0}", idPresupuesto),
-        //              connection
+        public async Task<List<EstadoPresupuesto>> EstadoPresupuesto(string idPresupuesto)
+        {
+            using (SqlConnection connection = Connection.ObtenerConexion())
+            {
+                SqlCommand command = new SqlCommand(
+                    string.Format("SELECT IdPresupuesto, IdRubro, Rubro, Usuario, Presupuesto, Gastado, FechaDeCreacion, anio , mes FROM Presupuesto WHERE Idpresupuesto={0}", idPresupuesto),
+                      connection
 
-        //        );
+                );
 
-        //        SqlDataReader reader = command.ExecuteReader();
+                SqlDataReader reader = command.ExecuteReader();
 
-        //        var consulta = new List<EstadoPresupuesto>();
+                var consulta = new List<EstadoPresupuesto>();
 
-        //            while (reader.Read())
-        //            {
-        //              var presupuesto = new EstadoPresupuesto()
-        //               {
-        //                   Rubro = reader.GetString("Rubro"),
-        //                    Disponible = reader.GetDecimal("Estimado") - reader.GetDecimal("GastoRubro")
+                while (reader.Read())
+                {
+                    var presupuesto = new EstadoPresupuesto()
+                    {
+                        Rubro = reader.GetString("Rubro"),
+                        Disponible = reader.GetDecimal("Presupuesto") - reader.GetDecimal("Gastado")
 
-        //            };
-        //            consulta.Add(presupuesto);
-        //        }
+                    };
+                    consulta.Add(presupuesto);
+                }
 
-        //        connection.Close();
-        //        return consulta;
-        //    }
-        //}
-       
+                connection.Close();
+                return consulta;
+            }
+        }
+
 
         public async Task<List<PresupuestoModel>> PresupuestoPorFecha(string fecha)
         {
