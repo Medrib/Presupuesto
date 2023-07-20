@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 
 namespace Domain.Dtos.Cliente
@@ -14,7 +12,7 @@ namespace Domain.Dtos.Cliente
         public string Rubro { get; set; }
         public string Usuario { get; set; }
         public decimal Presupuesto { get; set; }
-        public decimal GastoRubro { get; set; }
+        public decimal Gastado { get; set; }
         public DateTime FechaDeCreacion { get; set; }
         public Int32 Anio { get; set; }
         public Int32 Mes { get; set; }
@@ -22,7 +20,7 @@ namespace Domain.Dtos.Cliente
 
     public class RequestPresupuesto
     {
-        public int Responsable { get; set; }
+        public string Usuario { get; set; }
         public int DuracionPresupuesto { get; set; }
 
         public List<DetallePresupuesto> detallePresupuesto { get; set;}
@@ -34,13 +32,15 @@ namespace Domain.Dtos.Cliente
 
         public string IdRubro { get; set; }
         public string Rubro { get; set; }
-        public decimal Estimado { get; set; }
+        public decimal Presupuesto { get; set; }
+        public int Anio { get; set; }
+        public int Mes { get; set; }
 
     }
 
     public class EstadoPresupuesto
     {
-        public string Rubro { get;set; }
+        public string Rubro { get; set; }
         public decimal Disponible { get; set; }
     }
 }

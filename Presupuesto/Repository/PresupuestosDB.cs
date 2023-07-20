@@ -2,8 +2,7 @@
 using System.Data.SqlClient;
 using Presupuesto.DataBase;
 using System.Data;
-
-
+using Domain.Shared;
 
 namespace Presupuesto.Repository
 {
@@ -29,18 +28,19 @@ namespace Presupuesto.Repository
 
                     while (i <= cantElementos)
                     {
-                        cmd.CommandText = string.Format(@"INSERT INTO Presupuesto(IdPresupuesto,IdRubro,Rubro,Responsable,Estimado, GastoRubro, FechaInicio,FechaFin) 
-                                            VALUES (@idPresupuesto{0},@idRubro{0},@rubro{0},@responsable{0},@estimado{0},@gastoRubro{0}, @fechaInicio{0},@fechaFin{0})", i);
+                        cmd.CommandText = string.Format(@"INSERT INTO Presupuesto(IdPresupuesto,IdRubro,Rubro,Usuario,Presupuesto, Gastado, FechaDeCreacion,Anio,Mes) 
+                                            VALUES (@idPresupuesto{0},@idRubro{0},@rubro{0},@usuario{0},@presupuesto{0},@gastado{0}, @fechadecreacion{0},@anio{0}, @mes{0})", i);
 
                         detalle = request.detallePresupuesto[i];
                         cmd.Parameters.AddWithValue("@idPresupuesto" + i, idPresupuesto);
                         cmd.Parameters.AddWithValue("@idRubro" + i, detalle.IdRubro);
                         cmd.Parameters.AddWithValue("@rubro" + i, detalle.Rubro);
-                        cmd.Parameters.AddWithValue("@responsable" + i, request.Responsable);
-                        cmd.Parameters.AddWithValue("@estimado" + i, detalle.Estimado);
-                        cmd.Parameters.AddWithValue("@gastoRubro" + i, 0);
-                        cmd.Parameters.AddWithValue("@fechaInicio" + i, horarioArg);
-                        cmd.Parameters.AddWithValue("@fechaFin" + i, horarioArg.AddDays(request.DuracionPresupuesto));
+                        cmd.Parameters.AddWithValue("@usuario" + i, request.Usuario);
+                        cmd.Parameters.AddWithValue("@presupuesto" + i, detalle.Presupuesto);
+                        cmd.Parameters.AddWithValue("@gastado" + i, 0);
+                        cmd.Parameters.AddWithValue("@fechadecreacion" + i, horarioArg);
+                        cmd.Parameters.AddWithValue("@anio" + i, detalle.Anio);
+                        cmd.Parameters.AddWithValue("@mes" + i, detalle.Mes);
                         cmd.ExecuteNonQuery();
 
                         i++;
@@ -54,33 +54,71 @@ namespace Presupuesto.Repository
             }
         }
 
-        public async Task<List<EstadoPresupuesto>> EstadoPresupuesto(string idPresupuesto)
+        //public async Task<List<EstadoPresupuesto>> EstadoPresupuesto(string idPresupuesto)
+        //{
+        //    using (SqlConnection connection = Connection.ObtenerConexion())
+        //    {
+        //        SqlCommand command = new SqlCommand(
+        //            string.Format("SELECT IdPresupuesto, IdRubro, Rubro, Responsable, Estimado, GastoRubro, FechaInicio, FechaFin FROM Presupuesto WHERE Idpresupuesto={0}", idPresupuesto),
+        //              connection
+
+        //        );
+
+        //        SqlDataReader reader = command.ExecuteReader();
+
+        //        var consulta = new List<EstadoPresupuesto>();
+
+        //            while (reader.Read())
+        //            {
+        //              var presupuesto = new EstadoPresupuesto()
+        //               {
+        //                   Rubro = reader.GetString("Rubro"),
+        //                    Disponible = reader.GetDecimal("Estimado") - reader.GetDecimal("GastoRubro")
+
+        //            };
+        //            consulta.Add(presupuesto);
+        //        }
+
+        //        connection.Close();
+        //        return consulta;
+        //    }
+        //}
+       
+
+        public async Task<List<PresupuestoModel>> PresupuestoPorFecha(string fecha)
         {
+            var fecha2 = Functions.mesAñoIntParse(fecha);
+
             using (SqlConnection connection = Connection.ObtenerConexion())
             {
                 SqlCommand command = new SqlCommand(
-                    string.Format("SELECT IdPresupuesto, IdRubro, Rubro, Responsable, Estimado, GastoRubro, FechaInicio, FechaFin FROM Presupuesto WHERE Idpresupuesto={0}", idPresupuesto),
+                    string.Format("SELECT * FROM Presupuesto WHERE Mes={0} AND Anio={1};", fecha2.Mes, fecha2.Año),
                       connection
-
                 );
 
                 SqlDataReader reader = command.ExecuteReader();
 
-                var consulta = new List<EstadoPresupuesto>();
-         
-                    while (reader.Read())
-                    {
-                      var presupuesto = new EstadoPresupuesto()
-                       {
-                           Rubro = reader.GetString("Rubro"),
-                           Disponible = reader.GetDecimal("Estimado") - reader.GetDecimal("GastoRubro")
+                var PresupuestoFecha = new List<PresupuestoModel>();
 
-                       };
-                       consulta.Add(presupuesto);
-                    }
-           
+                while (reader.Read())
+                {
+                    var consulta = new PresupuestoModel()
+                    {
+                        IdPresupuesto = reader.GetInt32(0),
+                        IdRubro = reader.GetString(1),
+                        Rubro = reader.GetString(2),
+                        Usuario = reader.GetString(3),
+                        Presupuesto = reader.GetDecimal(4),
+                        Gastado = reader.GetDecimal(5),
+                        FechaDeCreacion = reader.GetDateTime(6),
+                        Mes = reader.GetInt32(7),
+                        Anio = reader.GetInt32(8)
+
+                    };
+                    PresupuestoFecha.Add(consulta);
+                }
                 connection.Close();
-                return consulta;
+                return PresupuestoFecha;
             }
         }
     }

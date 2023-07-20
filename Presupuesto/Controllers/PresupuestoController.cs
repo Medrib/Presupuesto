@@ -20,14 +20,14 @@ namespace Presupuesto.Controllers
             _logger = logger;
         }
 
-        [HttpGet("/ObtenerClientePorDni", Name = "ObtenerClientePorDni")]
-        public async Task<DatosPersonales> ObtenerClientePorDni(int dni)
-            => await _datosPersonalesDB.DatosPersonalesByDni(dni);
+        //[HttpGet("/ObtenerClientePorDni", Name = "ObtenerClientePorDni")]
+        //public async Task<DatosPersonales> ObtenerClientePorDni(int dni)
+        //    => await _datosPersonalesDB.DatosPersonalesByDni(dni);
 
 
-        [HttpGet("/ObtenerClientes", Name = "ObtenerClientes")]
-        public async Task<List<DatosPersonales>> ObtenerClientes()
-            => await _datosPersonalesDB.Clientes();
+        //[HttpGet("/ObtenerClientes", Name = "ObtenerClientes")]
+        //public async Task<List<DatosPersonales>> ObtenerClientes()
+        //    => await _datosPersonalesDB.Clientes();
 
         //[HttpGet("/ObtenerGastosPorProducto", Name = "ObtenerGastosPorProducto")]
         //public async Task<List<Gastos>> ObtenerGastosPorProducto(string idProducto)
@@ -51,21 +51,25 @@ namespace Presupuesto.Controllers
         public async Task<List<Gastos>> GastosPorMesAño(string mesAño)
             => await _gastosDB.GastosPorMesAño(mesAño);
 
-        [HttpDelete("/EliminarCliente",Name ="EliminarCliente")]
-        public async Task<string> EliminarCliente(int dni)
-            => await _datosPersonalesDB.EliminarCliente(dni);
+        //[HttpDelete("/EliminarCliente",Name ="EliminarCliente")]
+        //public async Task<string> EliminarCliente(int dni)
+        //    => await _datosPersonalesDB.EliminarCliente(dni);
 
         [HttpPost("/AgregarPresupuesto", Name = "AgregarPresupuesto")]
         public async Task<int> AgregarPresupuesto(RequestPresupuesto request)
             => await _presupuestosDB.AgregarPresupuesto(request);
 
-        [HttpGet("/EstadoPresupuesto", Name = "EstadoPresupuesto")]
-        public async Task<List<EstadoPresupuesto>> EstadoPresupuesto(string idPresupuesto)
-            => await _presupuestosDB.EstadoPresupuesto(idPresupuesto);
+        //[HttpGet("/EstadoPresupuesto", Name = "EstadoPresupuesto")]
+        //public async Task<List<EstadoPresupuesto>> EstadoPresupuesto(string idPresupuesto)
+        //    => await _presupuestosDB.EstadoPresupuesto(idPresupuesto);
 
         [HttpGet("/ValidarUsuario/{user}/{password}", Name = "ValidarUsuario")]
         public async Task<bool> ValidarUsuario(string user, string password)
             => await _validacionUsuarioDB.ValidarUsuario(user, password);
+
+        [HttpGet("/PresupuestoPorFecha", Name = "PresupuestoPorFecha")]
+        public async Task<List<PresupuestoModel>> PresupuestoPorFecha(string fecha)
+          => await _presupuestosDB.PresupuestoPorFecha(fecha);
     }
 
 
