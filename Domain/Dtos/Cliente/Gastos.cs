@@ -27,5 +27,18 @@ namespace Domain.Dtos.Cliente
         public decimal GastoRubro { get; set; }
     }
 
+    public class EditarGasto
+    {
+        public string Id { get; set; } //IND00000001
+        public int IdPresupuesto { get; set; }
+        public decimal Gasto { get; set; }
+        public string Usuario { get; set;}
 
+    }
+    public class EliminaGasto
+    {
+        public string Id { get; set; } //IND00000001
+        public string Usuario { get; set; }
+
+    }
 }

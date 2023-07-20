@@ -142,8 +142,8 @@ namespace Presupuesto.Repository
                 cmdActualizaPresupuesto.Connection = conn;
 
                 cmdActualizaPresupuesto.Connection = conn;
-                cmdActualizaPresupuesto.CommandText = @"UPDATE Presupuesto SET GastoRubro= @gastoRubro WHERE (IdRubro= @idRubro AND IdPresupuesto= @idPresupuesto)";
-                cmdActualizaPresupuesto.Parameters.AddWithValue("@gastoRubro", gastoRubro + valorAGastar);
+                cmdActualizaPresupuesto.CommandText = @"UPDATE Presupuesto SET Gastado= @gastado WHERE (IdRubro= @idRubro AND IdPresupuesto= @idPresupuesto)";
+                cmdActualizaPresupuesto.Parameters.AddWithValue("@gastado", gastoRubro + valorAGastar);
                 cmdActualizaPresupuesto.Parameters.AddWithValue("@idRubro", idRubro);
                 cmdActualizaPresupuesto.Parameters.AddWithValue("@idPresupuesto", idPresupuesto);
 
@@ -186,14 +186,14 @@ namespace Presupuesto.Repository
             conn.Close();
 
             //Se actualiza gasto en el presupuesto
-           // this.ActualizaGastoEnPresupuesto(puedeGastarResponse.GastoRubro,detalle.Gasto,detalle.IdRubro,detalle.IdPresupuesto);
+            this.ActualizaGastoEnPresupuesto(puedeGastarResponse.GastoRubro,detalle.Gasto,detalle.IdRubro,detalle.IdPresupuesto);
             
             return idGasto;
             
         }
 
 
-        public async Task<string> EliminarGasto(string IdGasto)
+        public async Task<string> EliminarGasto(EliminaGasto IdGasto)
         {
             using (SqlConnection conn = Connection.ObtenerConexion())
             {
@@ -201,9 +201,10 @@ namespace Presupuesto.Repository
                 {
                     cmd.Connection = conn;
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = @"DELETE FROM Gastos WHERE Id = @id";
+                    cmd.CommandText = @"DELETE FROM Gastos WHERE Id = @id AND Usuario = @usuario;";
 
-                    cmd.Parameters.AddWithValue("@id", IdGasto);
+                    cmd.Parameters.AddWithValue("@id", IdGasto.Id);
+                    cmd.Parameters.AddWithValue("@usuario", IdGasto.Usuario);
 
                     //conn.Open();
                     cmd.ExecuteNonQuery();
@@ -213,6 +214,49 @@ namespace Presupuesto.Repository
                 }
             }
         }
+
+        public async Task<string> ActualizaGasto(EditarGasto detalle)
+        {
+            using (SqlConnection conn = Connection.ObtenerConexion())
+            {
+                using (SqlCommand cmd = new SqlCommand())
+                {
+                    cmd.Connection = conn;
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = @"UPDATE Gastos SET Gasto = @gasto WHERE Id = @id AND Usuario = @usuario AND IdPresupuesto = @idPresupuesto; ";
+
+                    cmd.Parameters.AddWithValue("@gasto", detalle.Gasto);
+                    cmd.Parameters.AddWithValue("@id", detalle.Id);
+                    cmd.Parameters.AddWithValue("@usuario", detalle.Usuario);
+                    cmd.Parameters.AddWithValue("@idPresupuesto", detalle.IdPresupuesto);
+
+                    //conn.Open();
+                    //cmd.ExecuteNonQuery();
+
+                    conn.Close();
+                    return "El gasto se actualizó correctamente.";
+                }
+            }
+        
+        }
+
+        //private void ActualizaGastoEnPresupuestoPut(decimal valor, int idPresupuesto)
+        //{
+        //    using (SqlConnection conn = Connection.ObtenerConexion())
+        //    {
+        //        SqlCommand cmdActualizaPresupuesto = new SqlCommand();
+        //        cmdActualizaPresupuesto.Connection = conn;
+
+        //        cmdActualizaPresupuesto.Connection = conn;
+        //        cmdActualizaPresupuesto.CommandText = @"UPDATE Presupuesto SET Gastado= @gastado WHERE (IdRubro= @idRubro AND IdPresupuesto= @idPresupuesto)";
+        //        cmdActualizaPresupuesto.Parameters.AddWithValue("@gastado", gastoRubro + valorAGastar);
+ 
+
+        //        cmdActualizaPresupuesto.ExecuteNonQuery();
+
+        //        conn.Close();
+        //    }
+        //}
 
     }
 }
