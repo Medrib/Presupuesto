@@ -31,6 +31,7 @@ namespace Domain.Dtos.Cliente
     {
         public string Id { get; set; } //IND00000001
         public int IdPresupuesto { get; set; }
+        public string IdRubro { get; set; }
         public decimal Gasto { get; set; }
         public string Usuario { get; set;}
 
@@ -39,6 +40,12 @@ namespace Domain.Dtos.Cliente
     {
         public string Id { get; set; } //IND00000001
         public string Usuario { get; set; }
+
+    }
+    public class Operacion
+    {
+       public string op { get; set; }
+       public decimal diferencia { get; set; }
 
     }
 }

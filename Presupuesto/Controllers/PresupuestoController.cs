@@ -14,12 +14,13 @@ namespace Presupuesto.Controllers
         private GastosDB _gastosDB = new GastosDB();
         private PresupuestosDB _presupuestosDB = new PresupuestosDB();
         private ValidacionUsuarioDB _validacionUsuarioDB = new ValidacionUsuarioDB();
-
+    
         public PresupuestoController(ILogger<WeatherForecastController> logger)
         {
             _logger = logger;
         }
 
+    
         //[HttpGet("/ObtenerClientePorDni", Name = "ObtenerClientePorDni")]
         //public async Task<DatosPersonales> ObtenerClientePorDni(int dni)
         //    => await _datosPersonalesDB.DatosPersonalesByDni(dni);

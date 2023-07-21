@@ -217,6 +217,16 @@ namespace Presupuesto.Repository
 
         public async Task<string> ActualizaGasto(EditarGasto detalle)
         {
+            var puedeGastarResponse = this.PuedeGastar(detalle.IdRubro, detalle.Gasto);
+            if (!puedeGastarResponse.PuedeGastar) { return "Excede el presupuesto estimado"; }
+
+            //se verifica si se debe sumar o restar en el presupuesto Gastado
+            var verifica = this.OperacionEnPresupuesto(detalle);
+
+            //Actualiza Presupuesto Gastado
+            this.ActualizaGastoEnPresupuestoPut(puedeGastarResponse.GastoRubro, detalle.IdPresupuesto, verifica);
+
+            //actualiza Tabla Gastos
             using (SqlConnection conn = Connection.ObtenerConexion())
             {
                 using (SqlCommand cmd = new SqlCommand())
@@ -231,32 +241,85 @@ namespace Presupuesto.Repository
                     cmd.Parameters.AddWithValue("@idPresupuesto", detalle.IdPresupuesto);
 
                     //conn.Open();
-                    //cmd.ExecuteNonQuery();
+                    cmd.ExecuteNonQuery();
 
                     conn.Close();
                     return "El gasto se actualizó correctamente.";
                 }
             }
-        
+
         }
 
-        //private void ActualizaGastoEnPresupuestoPut(decimal valor, int idPresupuesto)
-        //{
-        //    using (SqlConnection conn = Connection.ObtenerConexion())
-        //    {
-        //        SqlCommand cmdActualizaPresupuesto = new SqlCommand();
-        //        cmdActualizaPresupuesto.Connection = conn;
+        private Operacion OperacionEnPresupuesto(EditarGasto detalle)
+        {
+            // chequea si el gasto editado es mayor o menor al original
+            using (SqlConnection conn = Connection.ObtenerConexion())
+            {
+                decimal gasto = 0;
+                using (SqlCommand cmd = new SqlCommand())
+                {
+                    cmd.Connection = conn;
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = @"SELECT * FROM Gastos where Id=@Id";
 
-        //        cmdActualizaPresupuesto.Connection = conn;
-        //        cmdActualizaPresupuesto.CommandText = @"UPDATE Presupuesto SET Gastado= @gastado WHERE (IdRubro= @idRubro AND IdPresupuesto= @idPresupuesto)";
-        //        cmdActualizaPresupuesto.Parameters.AddWithValue("@gastado", gastoRubro + valorAGastar);
- 
+                    cmd.Parameters.AddWithValue("@Id", detalle.Id);
 
-        //        cmdActualizaPresupuesto.ExecuteNonQuery();
+                    SqlDataReader reader = cmd.ExecuteReader();
 
-        //        conn.Close();
-        //    }
-        //}
+                    while(reader.Read())
+                    {
+                        //gasto original
+                        gasto = reader.GetDecimal("Gasto");
+                    }
+                }
+                //compara los 2 gastos para saber si se debe restar o sumar en la tabla Presupuesto
+                if (gasto < detalle.Gasto)
+                {
+                    conn.Close();
+                    decimal valor = detalle.Gasto - gasto;
+                    return new Operacion() { op= "+", diferencia = valor };
+                }
+                if (gasto > detalle.Gasto)
+                {
+                    conn.Close();
+                    decimal valor = gasto - detalle.Gasto;
+                    return new Operacion() { op = "-", diferencia = valor};
+                }
+                else
+                {
+                    conn.Close();
+                    return new Operacion() { op = "=", diferencia= 0};
+                }
+            }
+        }
 
+        private void ActualizaGastoEnPresupuestoPut(decimal valorActual, int idPresupuesto, Operacion operacion)
+        {
+            using (SqlConnection conn = Connection.ObtenerConexion())
+            {
+                SqlCommand cmdActualizaPresupuesto = new SqlCommand();
+                cmdActualizaPresupuesto.Connection = conn;
+
+                cmdActualizaPresupuesto.Connection = conn;
+                cmdActualizaPresupuesto.CommandText = @"UPDATE Presupuesto SET Gastado= @gastado WHERE IdPresupuesto = @idPresupuesto;";
+                cmdActualizaPresupuesto.Parameters.AddWithValue("@idPresupuesto", idPresupuesto);
+                if(operacion.op == "+") 
+                {
+                    cmdActualizaPresupuesto.Parameters.AddWithValue("@gastado", valorActual + operacion.diferencia);
+                }
+                if(operacion.op == "-")
+                {
+                    cmdActualizaPresupuesto.Parameters.AddWithValue("@gastado", valorActual - operacion.diferencia);
+                }
+                else if(operacion.op == "=")
+                {
+                    cmdActualizaPresupuesto.Parameters.AddWithValue("@gastado", valorActual);
+                }
+
+                cmdActualizaPresupuesto.ExecuteNonQuery();
+
+                conn.Close();
+            }
+        }
     }
 }

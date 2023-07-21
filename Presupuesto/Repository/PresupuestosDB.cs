@@ -59,7 +59,7 @@ namespace Presupuesto.Repository
             using (SqlConnection connection = Connection.ObtenerConexion())
             {
                 SqlCommand command = new SqlCommand(
-                    string.Format("SELECT IdPresupuesto, IdRubro, Rubro, Usuario, Presupuesto, Gastado, FechaDeCreacion, anio , mes FROM Presupuesto WHERE Idpresupuesto={0}", idPresupuesto),
+                    string.Format("SELECT * FROM Presupuesto WHERE Idpresupuesto={0}", idPresupuesto),
                       connection
 
                 );
