@@ -33,9 +33,7 @@ namespace Domain.Dtos.Cliente
         public string IdRubro { get; set; }
         public string Rubro { get; set; }
         public decimal Presupuesto { get; set; }
-        public int Anio { get; set; }
-        public int Mes { get; set; }
-
+    
     }
 
     public class EstadoPresupuesto
@@ -43,4 +41,5 @@ namespace Domain.Dtos.Cliente
         public string Rubro { get; set; }
         public decimal Disponible { get; set; }
     }
+
 }

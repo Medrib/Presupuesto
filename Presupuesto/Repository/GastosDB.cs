@@ -45,7 +45,7 @@ namespace Presupuesto.Repository
             }
         }
 
-        private PuedeGastarResponse PuedeGastar(string idRubro, decimal valorAGastar)
+        private PuedeGastarResponse PuedeGastar(string idRubro, decimal valorAGastar, int idPresupuesto)
         {
             decimal gastoRubro = 0;
             var puedeGastar = false;
@@ -55,8 +55,10 @@ namespace Presupuesto.Repository
                 SqlCommand cmdPresupuesto = new SqlCommand();
                 cmdPresupuesto.Connection = conn;
                 cmdPresupuesto.CommandType = CommandType.Text;
-                cmdPresupuesto.CommandText = @"SELECT IdPresupuesto, IdRubro, Rubro, Usuario, Presupuesto, Gastado, FechaDeCreacion, Mes, Anio FROM Presupuesto where IdRubro=@idRubro";
+                cmdPresupuesto.CommandText = @"SELECT * FROM Presupuesto where IdRubro=@idRubro AND IdPresupuesto=@idPresupuesto";
+
                 cmdPresupuesto.Parameters.AddWithValue("@idRubro", idRubro);
+                cmdPresupuesto.Parameters.AddWithValue("@IdPresupuesto", idPresupuesto);
 
                 SqlDataReader reader = cmdPresupuesto.ExecuteReader();
 
@@ -98,7 +100,7 @@ namespace Presupuesto.Repository
             var idGasto = detalle.IdRubro + parteEntera;
 
             //Se verifica que se pueda hacer ese gasto
-            var puedeGastarResponse = this.PuedeGastar(detalle.IdRubro, detalle.Gasto);
+            var puedeGastarResponse = this.PuedeGastar(detalle.IdRubro, detalle.Gasto, detalle.IdPresupuesto);
             if (!puedeGastarResponse.PuedeGastar) { return "Excede el presupuesto estimado"; }
 
             //Se inserta un gasto a la tabla de gastos
@@ -195,7 +197,7 @@ namespace Presupuesto.Repository
 
         public async Task<string> ActualizaGasto(EditarGasto detalle)
         {
-            var puedeGastarResponse = this.PuedeGastar(detalle.IdRubro, detalle.Gasto);
+            var puedeGastarResponse = this.PuedeGastar(detalle.IdRubro, detalle.Gasto, detalle.IdPresupuesto);
             if (!puedeGastarResponse.PuedeGastar) { return "Excede el presupuesto estimado"; }
 
             //se verifica si se debe sumar o restar en el presupuesto Gastado

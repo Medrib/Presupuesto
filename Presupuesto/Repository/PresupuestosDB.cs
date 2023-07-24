@@ -39,8 +39,8 @@ namespace Presupuesto.Repository
                         cmd.Parameters.AddWithValue("@presupuesto" + i, detalle.Presupuesto);
                         cmd.Parameters.AddWithValue("@gastado" + i, 0);
                         cmd.Parameters.AddWithValue("@fechadecreacion" + i, horarioArg);
-                        cmd.Parameters.AddWithValue("@anio" + i, detalle.Anio);
-                        cmd.Parameters.AddWithValue("@mes" + i, detalle.Mes);
+                        cmd.Parameters.AddWithValue("@anio" + i, DateTime.UtcNow.AddHours(-3).Year);
+                        cmd.Parameters.AddWithValue("@mes" + i, DateTime.UtcNow.AddHours(-3).Month);
                         cmd.ExecuteNonQuery();
 
                         i++;
