@@ -9,44 +9,21 @@ namespace Presupuesto.Controllers
     public class PresupuestoController : ControllerBase
     {
 
-        private readonly ILogger<WeatherForecastController> _logger;
-        private DatosPersonalesDB _datosPersonalesDB = new DatosPersonalesDB();
         private GastosDB _gastosDB = new GastosDB();
         private PresupuestosDB _presupuestosDB = new PresupuestosDB();
         private ValidacionUsuarioDB _validacionUsuarioDB = new ValidacionUsuarioDB();
     
-        public PresupuestoController(ILogger<WeatherForecastController> logger)
+        public PresupuestoController()
         {
-            _logger = logger;
         }
-
-    
-        //[HttpGet("/ObtenerClientePorDni", Name = "ObtenerClientePorDni")]
-        //public async Task<DatosPersonales> ObtenerClientePorDni(int dni)
-        //    => await _datosPersonalesDB.DatosPersonalesByDni(dni);
-
-
-        //[HttpGet("/ObtenerClientes", Name = "ObtenerClientes")]
-        //public async Task<List<DatosPersonales>> ObtenerClientes()
-        //    => await _datosPersonalesDB.Clientes();
-
-        //[HttpGet("/ObtenerGastosPorProducto", Name = "ObtenerGastosPorProducto")]
-        //public async Task<List<Gastos>> ObtenerGastosPorProducto(string idProducto)
-        //    => await _gastosDB.GastosPorProducto(idProducto);
-
-
-        //[HttpGet("/ObtenerGastosTotales", Name = "ObtenerGastosTotales")]
-        //public async Task<List<Gastos>> ObtenerGastosTotales()
-        //    => await _gastosDB.ObtenerGastosTotales();
-
 
         [HttpPost("/AgregarGasto", Name = "AgregarGasto")]
         public async Task<string> AgregarGasto(AgregarGastoRequest detalle)
             => await _gastosDB.AgregarGasto(detalle);
 
-        //[HttpPut("/ActualizaGasto", Name = "ActualizaGasto")]
-        //public async Task<string> ActualizaGasto(EditarGasto detalle)
-        //    => await _gastosDB.ActualizaGasto(detalle);
+        [HttpPut("/ActualizaGasto", Name = "ActualizaGasto")]
+        public async Task<string> ActualizaGasto(EditarGasto detalle)
+            => await _gastosDB.ActualizaGasto(detalle);
 
         [HttpDelete("/EliminarGasto", Name = "EliminarGasto")]
         public async Task<string> EliminarGasto(EliminaGasto idGasto)
@@ -55,10 +32,6 @@ namespace Presupuesto.Controllers
         [HttpGet("/GastosPorMesAño", Name = "GastosPorMesAño")]
         public async Task<List<Gastos>> GastosPorMesAño(string mesAño)
             => await _gastosDB.GastosPorMesAño(mesAño);
-
-        //[HttpDelete("/EliminarCliente",Name ="EliminarCliente")]
-        //public async Task<string> EliminarCliente(int dni)
-        //    => await _datosPersonalesDB.EliminarCliente(dni);
 
         [HttpPost("/AgregarPresupuesto", Name = "AgregarPresupuesto")]
         public async Task<int> AgregarPresupuesto(RequestPresupuesto request)
