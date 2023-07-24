@@ -13,36 +13,10 @@ namespace Presupuesto.Repository
         {
 
             var fecha = Functions.mesAñoIntParse(mesAño);
-       
-            using (SqlConnection connection = Connection.ObtenerConexion())
-            {
-                SqlCommand command = new SqlCommand(
-                    string.Format("SELECT * FROM Gastos WHERE Mes={0} AND Anio={1};", fecha.Mes, fecha.Año),
-                      connection
-                );
 
-                SqlDataReader reader = command.ExecuteReader();
-                                 
-                var gastoMes = new List<Gastos>();
+            var command = string.Format("SELECT * FROM Gastos WHERE Mes={0} AND Anio={1};", fecha.Mes, fecha.Año);
 
-                while (reader.Read())
-                {
-                    var gasto = new Gastos()
-                    {
-                        Id = reader.GetString(0),
-                        IdPresupuesto = reader.GetInt32(1),
-                        Gasto = reader.GetDecimal(2),
-                        Usuario = reader.GetString(3),
-                        FechaCreacion = reader.GetDateTime(4),
-                        Mes = reader.GetInt32(5),
-                        Año = reader.GetInt32(6),
-
-                    };
-                        gastoMes.Add(gasto);                        
-                }
-                connection.Close();
-                return gastoMes;
-            }
+            return this.ObtenerGastos(command);
         }
 
         private PuedeGastarResponse PuedeGastar(string idRubro, decimal valorAGastar, int idPresupuesto)
@@ -131,15 +105,13 @@ namespace Presupuesto.Repository
             
         }
 
-        public List<Gastos> ObtenerGastos(string idGasto, string command)
+        public List<Gastos> ObtenerGastos(string command)
         {
             SqlConnection conn = Connection.ObtenerConexion();
             SqlCommand cmd = new SqlCommand();
             cmd.Connection = conn;
             cmd.CommandType = CommandType.Text;
             cmd.CommandText = command;
-
-            cmd.Parameters.AddWithValue("@idGasto", idGasto);
 
             SqlDataReader reader = cmd.ExecuteReader();
 
@@ -173,15 +145,15 @@ namespace Presupuesto.Repository
             var puedeGastarResponse = this.PuedeGastar(gasto.IdRubro, 0, gasto.IdPresupuesto);
 
             //Obtener el gasto a eliminar
-            var command = "SELECT * FROM Gastos WHERE Id LIKE @idGasto";
-            var gastoARestar = this.ObtenerGastos(gasto.Id, command)[0].Gasto;
+            var command = string.Format("SELECT * FROM Gastos WHERE Id={0};",gasto.Id);
+            var gastoARestar = this.ObtenerGastos(command)?.FirstOrDefault()?.Gasto;
 
             //Se valida que el valor a restar sea menor o igual a lo gastado en presupuesto
             var sePuedeActualizarPresupuesto = gastoARestar <= puedeGastarResponse.GastoRubro;
 
             //Actualiza gasto en presupuesto
             if (sePuedeActualizarPresupuesto)
-                this.ActualizaGastoEnPresupuesto(puedeGastarResponse.GastoRubro, -gastoARestar, gasto.IdRubro, gasto.IdPresupuesto);
+                this.ActualizaGastoEnPresupuesto(puedeGastarResponse.GastoRubro, -gastoARestar ?? 0, gasto.IdRubro, gasto.IdPresupuesto);
             else
                 return "No se pudo eliminar el gasto. El monto del gasto a eliminar excede el gastado del presupuesto";
 
