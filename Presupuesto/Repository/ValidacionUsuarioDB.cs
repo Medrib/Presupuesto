@@ -1,4 +1,5 @@
-﻿using Presupuesto.DataBase;
+﻿using Domain.Dtos.Cliente;
+using Presupuesto.DataBase;
 using System.Data;
 using System.Data.SqlClient;
 
@@ -7,6 +8,25 @@ namespace Presupuesto.Repository
     public class ValidacionUsuarioDB
     {
         public async Task<bool> ValidarUsuario(string user, string password)
+        {
+            //GetUser datosUsuario = new GetUser();
+            //{
+            //    user = user;
+            //    password = password;
+            //}
+
+            bool res = TestValidarUsuario(user, password);
+            
+            if (res)
+            {
+               return ResponseValidarTrue();
+            }
+            else 
+            {
+               return ResponseValidarFalse();
+            }
+        }
+        public static bool TestValidarUsuario(string user, string password)
         {
             using (SqlConnection connection = Connection.ObtenerConexion())
             {
@@ -26,9 +46,18 @@ namespace Presupuesto.Repository
                 }
 
                 connection.Close();
-
+              
                 return false;
             }
+        }
+      
+        public static bool ResponseValidarTrue()
+        {
+            return true;
+        }
+        public static bool ResponseValidarFalse()
+        {
+            return false;
         }
     }
 }
