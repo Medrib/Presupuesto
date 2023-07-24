@@ -8,6 +8,12 @@ namespace Presupuesto.Repository
 {
     public class PresupuestosDB
     {
+        private readonly Connection _connection;
+
+        public PresupuestosDB(Connection connection)
+        {
+            _connection = connection;
+        }
         public async Task<int> AgregarPresupuesto(RequestPresupuesto request)
         {
             Random rnd = new Random();
@@ -19,7 +25,7 @@ namespace Presupuesto.Repository
             var cantElementos = request.detallePresupuesto.Count() - 1;
             int i = 0;
             var detalle = new DetallePresupuesto();
-            using (SqlConnection conn = Connection.ObtenerConexion())
+            using (SqlConnection conn = _connection.ObtenerConexion())
             {
                 using (SqlCommand cmd = new SqlCommand())
                 {
@@ -56,7 +62,7 @@ namespace Presupuesto.Repository
 
         public async Task<List<EstadoPresupuesto>> SaldoDisponible(string idPresupuesto)
         {
-            SqlConnection conn = Connection.ObtenerConexion();
+            SqlConnection conn = _connection.ObtenerConexion();
             SqlCommand cmd = new SqlCommand();
             cmd.Connection = conn;
             cmd.CommandType = CommandType.Text;
@@ -88,7 +94,7 @@ namespace Presupuesto.Repository
         {
             var fecha2 = Functions.mesAñoIntParse(fecha);
 
-            using (SqlConnection connection = Connection.ObtenerConexion())
+            using (SqlConnection connection = _connection.ObtenerConexion())
             {
                 SqlCommand command = new SqlCommand(
                     string.Format("SELECT * FROM Presupuesto WHERE Mes={0} AND Anio={1};", fecha2.Mes, fecha2.Año),

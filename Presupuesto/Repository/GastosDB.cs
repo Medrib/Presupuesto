@@ -1,14 +1,18 @@
 ﻿using Domain.Dtos.Cliente;
 using Domain.Shared;
-using Presupuesto.DataBase;
 using System.Data;
 using System.Data.SqlClient;
+using Connection = Presupuesto.DataBase.Connection;
 
 namespace Presupuesto.Repository
 {
     public class GastosDB
     {
-
+        private readonly Connection _connection;
+        public GastosDB(Connection connection) 
+        {
+            _connection = connection;
+        }
         public async Task<List<Gastos>> GastosPorMesAño(string mesAño)
         {
 
@@ -24,7 +28,7 @@ namespace Presupuesto.Repository
             decimal gastoRubro = 0;
             var puedeGastar = false;
 
-            using (SqlConnection conn = Connection.ObtenerConexion())
+            using (SqlConnection conn = _connection.ObtenerConexion())
             {
                 SqlCommand cmdPresupuesto = new SqlCommand();
                 cmdPresupuesto.Connection = conn;
@@ -49,7 +53,7 @@ namespace Presupuesto.Repository
 
         private void ActualizaGastoEnPresupuesto(decimal gastoRubro, decimal valorAGastar, string idRubro, int idPresupuesto)
         {
-            using (SqlConnection conn = Connection.ObtenerConexion())
+            using (SqlConnection conn = _connection.ObtenerConexion())
             {
                 SqlCommand cmdActualizaPresupuesto = new SqlCommand();
                 cmdActualizaPresupuesto.Connection = conn;
@@ -78,7 +82,7 @@ namespace Presupuesto.Repository
             if (!puedeGastarResponse.PuedeGastar) { return "Excede el presupuesto estimado"; }
 
             //Se inserta un gasto a la tabla de gastos
-            SqlConnection conn = Connection.ObtenerConexion();
+            SqlConnection conn = _connection.ObtenerConexion();
             using (SqlCommand cdmAgregaGasto = new SqlCommand())
             {
                 cdmAgregaGasto.Connection = conn;
@@ -107,7 +111,7 @@ namespace Presupuesto.Repository
 
         public List<Gastos> ObtenerGastos(string command)
         {
-            SqlConnection conn = Connection.ObtenerConexion();
+            SqlConnection conn = _connection.ObtenerConexion();
             SqlCommand cmd = new SqlCommand();
             cmd.Connection = conn;
             cmd.CommandType = CommandType.Text;
@@ -138,7 +142,7 @@ namespace Presupuesto.Repository
         public async Task<string> EliminarGasto(EliminaGasto gasto)
         {
 
-            SqlConnection conn = Connection.ObtenerConexion();
+            SqlConnection conn = _connection.ObtenerConexion();
             SqlCommand cmd = new SqlCommand();
 
             //Obtener el valor de lo gastado en presupuesto
@@ -179,7 +183,7 @@ namespace Presupuesto.Repository
             this.ActualizaGastoEnPresupuestoPut(puedeGastarResponse.GastoRubro, detalle.IdPresupuesto, verifica);
 
             //actualiza Tabla Gastos
-            using (SqlConnection conn = Connection.ObtenerConexion())
+            using (SqlConnection conn = _connection.ObtenerConexion())
             {
                 using (SqlCommand cmd = new SqlCommand())
                 {
@@ -205,7 +209,7 @@ namespace Presupuesto.Repository
         private Operacion OperacionEnPresupuesto(EditarGasto detalle)
         {
             // chequea si el gasto editado es mayor o menor al original
-            using (SqlConnection conn = Connection.ObtenerConexion())
+            using (SqlConnection conn = _connection.ObtenerConexion())
             {
                 decimal gasto = 0;
                 using (SqlCommand cmd = new SqlCommand())
@@ -247,7 +251,7 @@ namespace Presupuesto.Repository
 
         private void ActualizaGastoEnPresupuestoPut(decimal valorActual, int idPresupuesto, Operacion operacion)
         {
-            using (SqlConnection conn = Connection.ObtenerConexion())
+            using (SqlConnection conn = _connection.ObtenerConexion())
             {
                 SqlCommand cmdActualizaPresupuesto = new SqlCommand();
                 cmdActualizaPresupuesto.Connection = conn;

@@ -9,12 +9,15 @@ namespace Presupuesto.Controllers
     public class PresupuestoController : ControllerBase
     {
 
-        private GastosDB _gastosDB = new GastosDB();
-        private PresupuestosDB _presupuestosDB = new PresupuestosDB();
-        private ValidacionUsuarioDB _validacionUsuarioDB = new ValidacionUsuarioDB();
+        private GastosDB _gastosDB;
+        private PresupuestosDB _presupuestosDB;
+        private ValidacionUsuarioDB _validacionUsuarioDB;
     
-        public PresupuestoController()
+        public PresupuestoController(GastosDB gastosDB, PresupuestosDB presupuestosDB, ValidacionUsuarioDB validacionUsuarioDB)
         {
+            _gastosDB = gastosDB;
+            _presupuestosDB = presupuestosDB;
+            _validacionUsuarioDB = validacionUsuarioDB;
         }
 
         [HttpPost("/AgregarGasto", Name = "AgregarGasto")]

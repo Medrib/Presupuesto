@@ -6,9 +6,14 @@ namespace Presupuesto.Repository
 {
     public class ValidacionUsuarioDB
     {
+        private readonly Connection _connection;
+        public ValidacionUsuarioDB(Connection connection)
+        {
+            _connection = connection;
+        }
         public async Task<bool> ValidarUsuario(string user, string password)
         {
-            SqlConnection connection = Connection.ObtenerConexion();
+            SqlConnection connection = _connection.ObtenerConexion();
             SqlCommand cmd = new SqlCommand();
 
             cmd.Connection = connection;
