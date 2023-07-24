@@ -170,7 +170,7 @@ namespace Presupuesto.Repository
             SqlCommand cmd = new SqlCommand();
 
             //Obtener el valor de lo gastado en presupuesto
-            var puedeGastarResponse = this.PuedeGastar(gasto.IdRubro, 0);
+            var puedeGastarResponse = this.PuedeGastar(gasto.IdRubro, 0, gasto.IdPresupuesto);
 
             //Obtener el gasto a eliminar
             var command = "SELECT * FROM Gastos WHERE Id LIKE @idGasto";

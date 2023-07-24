@@ -1,8 +1,8 @@
 ﻿using Domain.Dtos.Cliente;
 using System.Data.SqlClient;
-using Presupuesto.DataBase;
 using System.Data;
 using Domain.Shared;
+using Connection = Presupuesto.DataBase.Connection;
 
 namespace Presupuesto.Repository
 {
@@ -56,32 +56,31 @@ namespace Presupuesto.Repository
 
         public async Task<List<EstadoPresupuesto>> SaldoDisponible(string idPresupuesto)
         {
-            using (SqlConnection connection = Connection.ObtenerConexion())
+            SqlConnection conn = Connection.ObtenerConexion();
+            SqlCommand cmd = new SqlCommand();
+            cmd.Connection = conn;
+            cmd.CommandType = CommandType.Text;
+            cmd.CommandText = "SELECT * FROM Presupuesto WHERE Idpresupuesto=@idPresupuesto";
+
+            cmd.Parameters.AddWithValue("@idPresupuesto", idPresupuesto);
+
+            SqlDataReader reader = cmd.ExecuteReader();
+
+            var saldos = new List<EstadoPresupuesto>();
+
+            while (reader.Read())
             {
-                SqlCommand command = new SqlCommand(
-                    string.Format("SELECT * FROM Presupuesto WHERE Idpresupuesto={0}", idPresupuesto),
-                      connection
-
-                );
-
-                SqlDataReader reader = command.ExecuteReader();
-
-                var consulta = new List<EstadoPresupuesto>();
-
-                while (reader.Read())
+                var estadoPresupuesto = new EstadoPresupuesto()
                 {
-                    var presupuesto = new EstadoPresupuesto()
-                    {
-                        Rubro = reader.GetString("Rubro"),
-                        Disponible = reader.GetDecimal("Presupuesto") - reader.GetDecimal("Gastado")
+                    Rubro = reader.GetString("Rubro"),
+                    Disponible = reader.GetDecimal("Presupuesto") - reader.GetDecimal("Gastado")
 
-                    };
-                    consulta.Add(presupuesto);
-                }
-
-                connection.Close();
-                return consulta;
+                };
+                saldos.Add(estadoPresupuesto);
             }
+
+            conn.Close();
+            return saldos;
         }
 
 
