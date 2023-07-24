@@ -129,26 +129,68 @@ namespace Presupuesto.Repository
             
         }
 
-
-        public async Task<string> EliminarGasto(EliminaGasto IdGasto)
+        public List<Gastos> ObtenerGastos(string idGasto, string command)
         {
-            using (SqlConnection conn = Connection.ObtenerConexion())
+            SqlConnection conn = Connection.ObtenerConexion();
+            SqlCommand cmd = new SqlCommand();
+            cmd.Connection = conn;
+            cmd.CommandType = CommandType.Text;
+            cmd.CommandText = command;
+
+            cmd.Parameters.AddWithValue("@idGasto", idGasto);
+
+            SqlDataReader reader = cmd.ExecuteReader();
+
+            var gastos = new List<Gastos>();
+            while (reader.Read())
             {
-                using (SqlCommand cmd = new SqlCommand())
+                var gasto = new Gastos()
                 {
-                    cmd.Connection = conn;
-                    cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = @"DELETE FROM Gastos WHERE Id = @id AND Usuario = @usuario;";
+                    Id = reader.GetString(0),
+                    IdPresupuesto = reader.GetInt32(1),
+                    Gasto = reader.GetDecimal(2),
+                    Usuario = reader.GetString(3),
+                    FechaCreacion = reader.GetDateTime(4),
+                    Mes = reader.GetInt32(5),
+                    Año = reader.GetInt32(6),
 
-                    cmd.Parameters.AddWithValue("@id", IdGasto.Id);
-
-                    //conn.Open();
-                    cmd.ExecuteNonQuery();
-
-                    conn.Close();
-                    return "El gasto se eliminó correctamente.";
-                }
+                };
+                gastos.Add(gasto);
             }
+            conn.Close();
+            return gastos;
+        }
+
+        public async Task<string> EliminarGasto(EliminaGasto gasto)
+        {
+
+            SqlConnection conn = Connection.ObtenerConexion();
+            SqlCommand cmd = new SqlCommand();
+
+            //Obtener el valor de lo gastado en presupuesto
+            var puedeGastarResponse = this.PuedeGastar(gasto.IdRubro, 0);
+
+            //Obtener el gasto a eliminar
+            var command = "SELECT * FROM Gastos WHERE Id LIKE @idGasto";
+            var gastoARestar = this.ObtenerGastos(gasto.Id, command)[0].Gasto;
+
+            //Se valida que el valor a restar sea menor o igual a lo gastado en presupuesto
+            var sePuedeActualizarPresupuesto = gastoARestar <= puedeGastarResponse.GastoRubro;
+
+            //Actualiza gasto en presupuesto
+            if (sePuedeActualizarPresupuesto)
+                this.ActualizaGastoEnPresupuesto(puedeGastarResponse.GastoRubro, -gastoARestar, gasto.IdRubro, gasto.IdPresupuesto);
+            else
+                return "No se pudo eliminar el gasto. El monto del gasto a eliminar excede el gastado del presupuesto";
+
+            //Eliminar gasto
+            cmd.Connection = conn;
+            cmd.CommandType = CommandType.Text;
+            cmd.CommandText = @"DELETE FROM Gastos WHERE Id = @id";
+            cmd.Parameters.AddWithValue("@id", gasto.Id);
+            cmd.ExecuteNonQuery();
+            conn.Close();
+            return "El gasto se eliminó correctamente.";
         }
 
         public async Task<string> ActualizaGasto(EditarGasto detalle)
