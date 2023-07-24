@@ -24,7 +24,7 @@ namespace Domain.Dtos.Cliente
     public class PuedeGastarResponse
     {
         public bool PuedeGastar { get; set; }
-        public decimal GastoRubro { get; set; }
+        public decimal GastoRubro { get; set; } //Esto es Gastado en DB
     }
 
     public class EditarGasto
@@ -38,8 +38,12 @@ namespace Domain.Dtos.Cliente
     }
     public class EliminaGasto
     {
+        public int IdPresupuesto { get; set; } //123456
+        public string IdRubro { get; set; } //IND
+
         public string Id { get; set; } //IND00000001
-        public string Usuario { get; set; }
+       
+        //public string Usuario { get; set; }
 
     }
     public class Operacion

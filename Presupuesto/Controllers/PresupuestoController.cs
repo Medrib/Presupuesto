@@ -44,9 +44,9 @@ namespace Presupuesto.Controllers
         public async Task<string> AgregarGasto(AgregarGastoRequest detalle)
             => await _gastosDB.AgregarGasto(detalle);
 
-        [HttpPut("/ActualizaGasto", Name = "ActualizaGasto")]
-        public async Task<string> ActualizaGasto(EditarGasto detalle)
-            => await _gastosDB.ActualizaGasto(detalle);
+        //[HttpPut("/ActualizaGasto", Name = "ActualizaGasto")]
+        //public async Task<string> ActualizaGasto(EditarGasto detalle)
+        //    => await _gastosDB.ActualizaGasto(detalle);
 
         [HttpDelete("/EliminarGasto", Name = "EliminarGasto")]
         public async Task<string> EliminarGasto(EliminaGasto idGasto)
@@ -64,9 +64,9 @@ namespace Presupuesto.Controllers
         public async Task<int> AgregarPresupuesto(RequestPresupuesto request)
             => await _presupuestosDB.AgregarPresupuesto(request);
 
-        [HttpGet("/EstadoPresupuesto", Name = "EstadoPresupuesto")]
-        public async Task<List<EstadoPresupuesto>> EstadoPresupuesto(string idPresupuesto)
-            => await _presupuestosDB.EstadoPresupuesto(idPresupuesto);
+        [HttpGet("/SaldoDisponible", Name = "SaldoDisponible")]
+        public async Task<List<EstadoPresupuesto>> SaldoDisponible(string idPresupuesto)
+            => await _presupuestosDB.SaldoDisponible(idPresupuesto);
 
         [HttpGet("/ValidarUsuario/{user}/{password}", Name = "ValidarUsuario")]
         public async Task<bool> ValidarUsuario(string user, string password)

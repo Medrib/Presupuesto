@@ -54,7 +54,7 @@ namespace Presupuesto.Repository
             }
         }
 
-        public async Task<List<EstadoPresupuesto>> EstadoPresupuesto(string idPresupuesto)
+        public async Task<List<EstadoPresupuesto>> SaldoDisponible(string idPresupuesto)
         {
             using (SqlConnection connection = Connection.ObtenerConexion())
             {
