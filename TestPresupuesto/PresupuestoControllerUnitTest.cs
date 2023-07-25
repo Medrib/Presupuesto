@@ -9,18 +9,18 @@ namespace TestPresupuesto
     public class PresupuestoControllerUnitTest
     {
         private readonly PresupuestoController _presupuestoController;
-        private readonly Mock<GastosDB> _gastosDB;
-        private readonly Mock<PresupuestosDB> _presupuestosDB;
-        private readonly Mock<ValidacionUsuarioDB> _validacionUsuarioDB;
+        private readonly Mock<IGastosDB> _gastosDB;
+        private readonly Mock<IPresupuestosDB> _presupuestosDB;
+        private readonly Mock<IValidacionUsuarioDB> _validacionUsuarioDB;
         private readonly Mock<IConnection> _connection;
         public PresupuestoControllerUnitTest()
         {
             //ACA INICIALIZO LAS COSAS QUE VOY A NECESITAR EN LOS TEST DE ESTE ARCHIVO - GENERICAMENTE
             _connection = new Mock<IConnection>();
-            _gastosDB = new Mock<GastosDB>(_connection.Object);
-            _presupuestosDB = new Mock<PresupuestosDB>(_connection.Object);
-            _validacionUsuarioDB = new Mock<ValidacionUsuarioDB>(_connection.Object);
-            _presupuestoController =  new PresupuestoController(_gastosDB.Object, _presupuestosDB.Object, _validacionUsuarioDB.Object);
+            _gastosDB = new Mock<IGastosDB>(_connection.Object);
+            _presupuestosDB = new Mock<IPresupuestosDB>(_connection.Object);
+            _validacionUsuarioDB = new Mock<IValidacionUsuarioDB>(_connection.Object);
+            _presupuestoController =  new PresupuestoController(_validacionUsuarioDB.Object, _gastosDB.Object, _presupuestosDB.Object);
         }
         [Fact]
         public async Task ValidarUsuario_Ok()

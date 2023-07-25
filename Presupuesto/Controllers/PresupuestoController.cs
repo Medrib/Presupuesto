@@ -9,11 +9,14 @@ namespace Presupuesto.Controllers
     public class PresupuestoController : ControllerBase
     {
 
-        private GastosDB _gastosDB;
-        private PresupuestosDB _presupuestosDB;
-        private ValidacionUsuarioDB _validacionUsuarioDB;
+        private readonly IGastosDB _gastosDB;
+        private readonly IPresupuestosDB _presupuestosDB;
+        private readonly IValidacionUsuarioDB _validacionUsuarioDB;
     
-        public PresupuestoController(GastosDB gastosDB, PresupuestosDB presupuestosDB, ValidacionUsuarioDB validacionUsuarioDB)
+        public PresupuestoController(IValidacionUsuarioDB validacionUsuarioDB,
+            IGastosDB gastosDB,
+            IPresupuestosDB presupuestosDB
+            )
         {
             _gastosDB = gastosDB;
             _presupuestosDB = presupuestosDB;

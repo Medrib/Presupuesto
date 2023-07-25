@@ -3,7 +3,7 @@ using Presupuesto.DataBase;
 
 namespace Presupuesto.Repository
 {
-    public class PresupuestosDB
+    public class PresupuestosDB : IPresupuestosDB
     {
         private readonly IConnection _connection;
 
@@ -127,6 +127,13 @@ namespace Presupuesto.Repository
 
             return new List<PresupuestoModel>();
         }
+    }
+
+    public interface IPresupuestosDB
+    {
+        Task<int> AgregarPresupuesto(RequestPresupuesto request);
+        Task<List<EstadoPresupuesto>> SaldoDisponible(string idPresupuesto);
+        Task<List<PresupuestoModel>> PresupuestoPorFecha(string fecha);
     }
 }
 

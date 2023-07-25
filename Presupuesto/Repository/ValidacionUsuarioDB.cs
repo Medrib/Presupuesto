@@ -3,7 +3,7 @@ using System.Data;
 
 namespace Presupuesto.Repository
 {
-    public class ValidacionUsuarioDB
+    public class ValidacionUsuarioDB : IValidacionUsuarioDB
     {
         private readonly IConnection _connection;
         public ValidacionUsuarioDB(IConnection connection)
@@ -32,5 +32,10 @@ namespace Presupuesto.Repository
                 }
             }
         }
+    }
+
+    public interface IValidacionUsuarioDB
+    {
+        Task<bool> ValidarUsuario(string user, string password);
     }
 }

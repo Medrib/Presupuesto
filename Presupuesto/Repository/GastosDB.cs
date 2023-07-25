@@ -4,7 +4,7 @@ using Presupuesto.DataBase;
 
 namespace Presupuesto.Repository
 {
-    public class GastosDB
+    public class GastosDB : IGastosDB
     {
         private readonly IConnection _connection;
         public GastosDB(IConnection connection) 
@@ -285,5 +285,15 @@ namespace Presupuesto.Repository
             //    conn.Close();
             //}
         }
+    }
+
+    public interface IGastosDB
+    {
+        Task<List<Gastos>> GastosPorMesAño(string mesAño);
+        Task<string> AgregarGasto(AgregarGastoRequest detalle);
+        List<Gastos> ObtenerGastos(string command);
+        Task<string> EliminarGasto(EliminaGasto gasto);
+        Task<string> ActualizaGasto(EditarGasto detalle);
+
     }
 }
