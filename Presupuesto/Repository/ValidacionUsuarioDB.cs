@@ -1,37 +1,36 @@
 ﻿using Presupuesto.DataBase;
 using System.Data;
-using System.Data.SqlClient;
 
 namespace Presupuesto.Repository
 {
     public class ValidacionUsuarioDB
     {
-        private readonly Connection _connection;
-        public ValidacionUsuarioDB(Connection connection)
+        private readonly IConnection _connection;
+        public ValidacionUsuarioDB(IConnection connection)
         {
             _connection = connection;
         }
         public async Task<bool> ValidarUsuario(string user, string password)
         {
-            SqlConnection connection = _connection.ObtenerConexion();
-            SqlCommand cmd = new SqlCommand();
+            var connection = _connection.ObtenerConexion();
 
-            cmd.Connection = connection;
-            cmd.CommandType = CommandType.Text;
-            cmd.CommandText = @"SELECT Usr, Psw FROM Users WHERE Usr = @User";
-
-            cmd.Parameters.AddWithValue("@User", user);
-
-            SqlDataReader reader = cmd.ExecuteReader();
-
-            while (reader.Read())
+            using (IDbCommand command = connection.CreateCommand())
             {
-                return reader.GetString("Psw") == password;
+                command.CommandText = @"SELECT Usr, Psw FROM Users WHERE Usr = @User";
+                var parameter = command.CreateParameter();
+                parameter.ParameterName = "@User";
+                parameter.Value = user;
+
+                connection.Open();
+                using (IDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        return reader.GetString(reader.GetOrdinal("Psw")) == password;
+                    }
+                    return false;
+                }
             }
-
-            connection.Close();
-
-            return false;
         }
     }
 }
