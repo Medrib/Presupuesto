@@ -2,6 +2,7 @@
 using Domain.Shared;
 using Presupuesto.DataBase;
 using System.Data;
+using System.Data.SqlClient;
 
 namespace Presupuesto.Repository
 {
@@ -15,49 +16,42 @@ namespace Presupuesto.Repository
         }
         public async Task<int> AgregarPresupuesto(RequestPresupuesto request)
         {
-            //Random rnd = new Random();
-            //var idPresupuesto = rnd.Next(100000, 999999);
-            ////var idPresupuesto = request.IdRubro + parteEntera;
+            Random rnd = new Random();
+            var idPresupuesto = rnd.Next(100000, 999999);
+            var horarioArg = DateTime.UtcNow.AddHours(-3);
 
-            //var horarioArg = DateTime.UtcNow.AddHours(-3);
+            var cantElementos = request.detallePresupuesto.Count() - 1;
+            int i = 0;
+            var detalle = new DetallePresupuesto();
 
-            //var cantElementos = request.detallePresupuesto.Count() - 1;
-            //int i = 0;
-            //var detalle = new DetallePresupuesto();
-            //using (SqlConnection conn = _connection.ObtenerConexion())
-            //{
-            //    using (SqlCommand cmd = new SqlCommand())
-            //    {
-            //        cmd.Connection = conn;
-            //        cmd.CommandType = CommandType.Text;
+            var conn = _connection.ObtenerConexion();
+            IDbCommand command = conn.CreateCommand();
 
-            //        while (i <= cantElementos)
-            //        {
-            //            cmd.CommandText = string.Format(@"INSERT INTO Presupuesto(IdPresupuesto,IdRubro,Rubro,Usuario,Presupuesto, Gastado, FechaDeCreacion,Anio,Mes) 
-            //                                VALUES (@idPresupuesto{0},@idRubro{0},@rubro{0},@usuario{0},@presupuesto{0},@gastado{0}, @fechadecreacion{0},@anio{0}, @mes{0})", i);
+            command.Connection = conn;
+            command.CommandType = CommandType.Text;
+            var parameters = new List<SqlParameter>();
+            while (i <= cantElementos)
+            {
+                command.CommandText = string.Format(@"INSERT INTO Presupuesto(IdPresupuesto,IdRubro,Rubro,Usuario,Presupuesto, Gastado, FechaDeCreacion,Anio,Mes) 
+                                            VALUES (@idPresupuesto{0},@idRubro{0},@rubro{0},@usuario{0},@presupuesto{0},@gastado{0}, @fechadecreacion{0},@anio{0}, @mes{0})", i);
 
-            //            detalle = request.detallePresupuesto[i];
-            //            cmd.Parameters.AddWithValue("@idPresupuesto" + i, idPresupuesto);
-            //            cmd.Parameters.AddWithValue("@idRubro" + i, detalle.IdRubro);
-            //            cmd.Parameters.AddWithValue("@rubro" + i, detalle.Rubro);
-            //            cmd.Parameters.AddWithValue("@usuario" + i, request.Usuario);
-            //            cmd.Parameters.AddWithValue("@presupuesto" + i, detalle.Presupuesto);
-            //            cmd.Parameters.AddWithValue("@gastado" + i, 0);
-            //            cmd.Parameters.AddWithValue("@fechadecreacion" + i, horarioArg);
-            //            cmd.Parameters.AddWithValue("@anio" + i, DateTime.UtcNow.AddHours(-3).Year);
-            //            cmd.Parameters.AddWithValue("@mes" + i, DateTime.UtcNow.AddHours(-3).Month);
-            //            cmd.ExecuteNonQuery();
+                detalle = request.detallePresupuesto[i];
+                parameters.Add(new SqlParameter() { ParameterName = "@idPresupuesto" + i, Value = idPresupuesto });
+                parameters.Add(new SqlParameter() { ParameterName = "@idRubro" + i, Value = detalle.IdRubro });
+                parameters.Add(new SqlParameter() { ParameterName = "@rubro" + i, Value = detalle.Rubro });
+                parameters.Add(new SqlParameter() { ParameterName = "@usuario" + i, Value = request.Usuario });
+                parameters.Add(new SqlParameter() { ParameterName = "@presupuesto" + i, Value = detalle.Presupuesto });
+                parameters.Add(new SqlParameter() { ParameterName = "@gastado" + i, Value = 0 });
+                parameters.Add(new SqlParameter() { ParameterName = "@fechadecreacion" + i, Value = horarioArg });
+                parameters.Add(new SqlParameter() { ParameterName = "@anio" + i, Value = DateTime.UtcNow.AddHours(-3).Year });
+                parameters.Add(new SqlParameter() { ParameterName = "@mes" + i, Value = DateTime.UtcNow.AddHours(-3).Month });
+                command.ExecuteNonQuery();
 
-            //            i++;
-            //        }
+                i++;
+            }
 
-            //        //conn.Open();
-
-            //        conn.Close();
-            //        return idPresupuesto;
-            return 0;
-            //    }
-            //}
+            conn.Close();
+            return idPresupuesto;
         }
 
         public async Task<List<EstadoPresupuesto>> SaldoDisponible(string idPresupuesto)
@@ -69,31 +63,30 @@ namespace Presupuesto.Repository
             command.CommandType = CommandType.Text;
             command.CommandText = "SELECT * FROM Presupuesto WHERE Idpresupuesto=@idPresupuesto";
 
-            var parameter = command.CreateParameter();
-            parameter.ParameterName = "@idPresupuesto";
-            parameter.Value = idPresupuesto;
-            command.Parameters.Add(parameter);
 
-            conn.Open();
-            using (IDataReader reader = command.ExecuteReader())
+            var parameters = new List<SqlParameter>()
             {
-                var saldos = new List<EstadoPresupuesto>();
+                new SqlParameter(){ ParameterName = "@idPresupuesto", Value = idPresupuesto}
+            };
 
-                while (reader.Read())
+            command.Parameters.Add(parameters);
+            conn.Open();
+
+            IDataReader reader = command.ExecuteReader();
+            var saldos = new List<EstadoPresupuesto>();
+            while (reader.Read())
+            {
+                var estadoPresupuesto = new EstadoPresupuesto()
                 {
-                    var estadoPresupuesto = new EstadoPresupuesto()
-                    {
-                        Rubro = reader.GetString(reader.GetOrdinal("rubro")),
-                        Disponible = reader.GetDecimal(reader.GetOrdinal("Presupuesto")) - reader.GetDecimal(reader.GetOrdinal("Gastado"))
+                    Rubro = reader.GetString(reader.GetOrdinal("rubro")),
+                    Disponible = reader.GetDecimal(reader.GetOrdinal("Presupuesto")) - reader.GetDecimal(reader.GetOrdinal("Gastado"))
 
-                    };
-                    saldos.Add(estadoPresupuesto);
-                }
-
-                conn.Close();
-                return saldos;
-             
+                };
+                saldos.Add(estadoPresupuesto);
             }
+
+            conn.Close();
+            return saldos;
         }
 
 
@@ -106,16 +99,13 @@ namespace Presupuesto.Repository
             IDbCommand command = connection.CreateCommand();
             command.CommandText = @"SELECT * FROM Presupuesto WHERE Mes=@mes AND Anio=@anio";
 
-            var parameter1 = command.CreateParameter();
-            parameter1.ParameterName = "@mes";
-            parameter1.Value = fecha2.Mes;
+            var parameters = new List<SqlParameter>()
+            {
+                new SqlParameter(){ ParameterName = "@mes", Value = fecha2.Mes},
+                new SqlParameter(){ ParameterName = "@anio", Value = fecha2.Año}
+            };
 
-            var parameter2 = command.CreateParameter();
-            parameter1.ParameterName = "@anio";
-            parameter1.Value = fecha2.Año;
-
-            command.Parameters.Add(parameter1);
-            command.Parameters.Add(parameter2);
+            command.Parameters.Add(parameters);
             connection.Open();
 
             IDataReader reader = command.ExecuteReader();
