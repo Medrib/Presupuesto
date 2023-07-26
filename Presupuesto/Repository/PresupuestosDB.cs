@@ -1,4 +1,5 @@
 ﻿using Domain.Dtos.Cliente;
+using Domain.Shared;
 using Presupuesto.DataBase;
 using System.Data;
 
@@ -98,41 +99,48 @@ namespace Presupuesto.Repository
 
         public async Task<List<PresupuestoModel>> PresupuestoPorFecha(string fecha)
         {
-            //var fecha2 = Functions.mesAñoIntParse(fecha);
+            var fecha2 = Functions.mesAñoIntParse(fecha);
 
-            //using (SqlConnection connection = _connection.ObtenerConexion())
-            //{
-            //    SqlCommand command = new SqlCommand(
-            //        string.Format("SELECT * FROM Presupuesto WHERE Mes={0} AND Anio={1};", fecha2.Mes, fecha2.Año),
-            //          connection
-            //    );
+            var connection = _connection.ObtenerConexion();
 
-            //    SqlDataReader reader = command.ExecuteReader();
+            IDbCommand command = connection.CreateCommand();
+            command.CommandText = @"SELECT * FROM Presupuesto WHERE Mes=@mes AND Anio=@anio";
 
-            //    var PresupuestoFecha = new List<PresupuestoModel>();
+            var parameter1 = command.CreateParameter();
+            parameter1.ParameterName = "@mes";
+            parameter1.Value = fecha2.Mes;
 
-            //    while (reader.Read())
-            //    {
-            //        var consulta = new PresupuestoModel()
-            //        {
-            //            IdPresupuesto = reader.GetInt32(0),
-            //            IdRubro = reader.GetString(1),
-            //            Rubro = reader.GetString(2),
-            //            Usuario = reader.GetString(3),
-            //            Presupuesto = reader.GetDecimal(4),
-            //            Gastado = reader.GetDecimal(5),
-            //            FechaDeCreacion = reader.GetDateTime(6),
-            //            Mes = reader.GetInt32(7),
-            //            Anio = reader.GetInt32(8)
+            var parameter2 = command.CreateParameter();
+            parameter1.ParameterName = "@anio";
+            parameter1.Value = fecha2.Año;
 
-            //        };
-            //        PresupuestoFecha.Add(consulta);
-            //    }
-            //    connection.Close();
-            //    return PresupuestoFecha;
-            //}
+            command.Parameters.Add(parameter1);
+            command.Parameters.Add(parameter2);
+            connection.Open();
 
-            return new List<PresupuestoModel>();
+            IDataReader reader = command.ExecuteReader();
+
+            var PresupuestoFecha = new List<PresupuestoModel>();
+
+            while (reader.Read())
+            {
+                var consulta = new PresupuestoModel()
+                {
+                    IdPresupuesto = reader.GetInt32(0),
+                    IdRubro = reader.GetString(1),
+                    Rubro = reader.GetString(2),
+                    Usuario = reader.GetString(3),
+                    Presupuesto = reader.GetDecimal(4),
+                    Gastado = reader.GetDecimal(5),
+                    FechaDeCreacion = reader.GetDateTime(6),
+                    Mes = reader.GetInt32(7),
+                    Anio = reader.GetInt32(8)
+
+                };
+                PresupuestoFecha.Add(consulta);
+            }
+            connection.Close();
+            return PresupuestoFecha;
         }
     }
 
