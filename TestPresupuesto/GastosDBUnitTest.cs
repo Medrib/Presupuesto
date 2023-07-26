@@ -83,5 +83,33 @@ namespace TestPresupuesto
          
         }
 
+        [Fact]
+        public async Task EliminarGasto_ok()
+        {
+            //
+
+            var readerMock = new Mock<IDataReader>();
+            var parameters = new Mock<IDataParameterCollection>();
+
+            var connectionMock = MockDependencies.GetConnectionMock(readerMock, parameters);
+            _connection.Setup(x => x.ObtenerConexion()).Returns(connectionMock.Object);
+
+            var interfaceGastosDB = new Mock<IGastosDB>();
+
+            interfaceGastosDB.Setup(x => x.PuedeGastar(It.IsAny<String>(), It.IsAny<Decimal>(), It.IsAny<int>()))
+                .Returns(new PuedeGastarResponse() { GastoRubro = 100 });
+
+            var gasto = new EliminaGasto()
+            {
+                IdRubro = "IND",
+                IdPresupuesto = 123456
+            };
+
+            //Act
+            var res = await _gastosDB.EliminarGasto(gasto);
+
+            //Assert
+            //Assert.Equal(response[0].Id, res[0].Id);
+        }
     }
 }

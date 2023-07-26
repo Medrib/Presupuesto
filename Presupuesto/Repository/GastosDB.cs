@@ -2,7 +2,7 @@
 using Domain.Shared;
 using Presupuesto.DataBase;
 using System.Data;
-
+using System.Data.SqlClient;
 
 namespace Presupuesto.Repository
 {
@@ -23,7 +23,7 @@ namespace Presupuesto.Repository
             return this.ObtenerGastos(command);
         }
 
-        private PuedeGastarResponse PuedeGastar(string idRubro, decimal valorAGastar, int idPresupuesto)
+        public PuedeGastarResponse PuedeGastar(string idRubro, decimal valorAGastar, int idPresupuesto)
         {
             decimal gastoRubro = 0;
             var puedeGastar = false;
@@ -35,16 +35,14 @@ namespace Presupuesto.Repository
             command.CommandType = CommandType.Text;
             command.CommandText = @"SELECT * FROM Presupuesto where IdRubro=@idRubro AND IdPresupuesto=@idPresupuesto";
 
-            var parameterIdRubro = command.CreateParameter();
-            parameterIdRubro.ParameterName = "@idRubro";
-            parameterIdRubro.Value = idRubro;
 
-            var parameterIdPresupuesto = command.CreateParameter();
-            parameterIdPresupuesto.ParameterName = "@idPresupuesto";
-            parameterIdPresupuesto.Value = idPresupuesto;
+            var parameters = new List<SqlParameter>()
+            {
+                new SqlParameter(){ ParameterName = "@idRubro", Value = idRubro},
+                new SqlParameter(){ ParameterName = "@idPresupuesto", Value = idPresupuesto}
+            };
 
-            command.Parameters.Add(parameterIdRubro);
-            command.Parameters.Add(parameterIdPresupuesto);
+            command.Parameters.Add(parameters);
 
             conn.Open();
             IDataReader reader = command.ExecuteReader();
@@ -327,6 +325,7 @@ namespace Presupuesto.Repository
         List<Gastos> ObtenerGastos(string command);
         Task<string> EliminarGasto(EliminaGasto gasto);
         Task<string> ActualizaGasto(EditarGasto detalle);
+        PuedeGastarResponse PuedeGastar(string idRubro, decimal valorAGastar, int idPresupuesto);
 
     }
 }
