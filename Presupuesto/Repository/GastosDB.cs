@@ -1,6 +1,8 @@
 ﻿using Domain.Dtos.Cliente;
 using Domain.Shared;
 using Presupuesto.DataBase;
+using System.Data;
+
 
 namespace Presupuesto.Repository
 {
@@ -23,51 +25,66 @@ namespace Presupuesto.Repository
 
         private PuedeGastarResponse PuedeGastar(string idRubro, decimal valorAGastar, int idPresupuesto)
         {
-            //decimal gastoRubro = 0;
-            //var puedeGastar = false;
+            decimal gastoRubro = 0;
+            var puedeGastar = false;
 
-            //using (SqlConnection conn = _connection.ObtenerConexion())
-            //{
-            //    SqlCommand cmdPresupuesto = new SqlCommand();
-            //    cmdPresupuesto.Connection = conn;
-            //    cmdPresupuesto.CommandType = CommandType.Text;
-            //    cmdPresupuesto.CommandText = @"SELECT * FROM Presupuesto where IdRubro=@idRubro AND IdPresupuesto=@idPresupuesto";
+            var conn = _connection.ObtenerConexion();
 
-            //    cmdPresupuesto.Parameters.AddWithValue("@idRubro", idRubro);
-            //    cmdPresupuesto.Parameters.AddWithValue("@IdPresupuesto", idPresupuesto);
+            IDbCommand command = conn.CreateCommand();
+          
+            command.CommandType = CommandType.Text;
+            command.CommandText = @"SELECT * FROM Presupuesto where IdRubro=@idRubro AND IdPresupuesto=@idPresupuesto";
 
-            //    SqlDataReader reader = cmdPresupuesto.ExecuteReader();
+            var parameterIdRubro = command.CreateParameter();
+            parameterIdRubro.ParameterName = "@idRubro";
+            parameterIdRubro.Value = idRubro;
 
-            //    while (reader.Read())
-            //    {
-            //        gastoRubro = reader.GetDecimal("Gastado");
-            //        puedeGastar = valorAGastar <= (reader.GetDecimal("Presupuesto") - gastoRubro);
-            //    }
+            var parameterIdPresupuesto = command.CreateParameter();
+            parameterIdPresupuesto.ParameterName = "@idPresupuesto";
+            parameterIdPresupuesto.Value = idPresupuesto;
 
-            //    conn.Close();
-            //    return new PuedeGastarResponse() {GastoRubro = gastoRubro, PuedeGastar = puedeGastar};
-            //}
+            command.Parameters.Add(parameterIdRubro);
+            command.Parameters.Add(parameterIdPresupuesto);
 
-            return new PuedeGastarResponse();
+            conn.Open();
+            IDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    gastoRubro = reader.GetDecimal(5);
+                    puedeGastar = valorAGastar <= (reader.GetDecimal(4) - gastoRubro);
+                }
+
+                conn.Close();
+                return new PuedeGastarResponse() { GastoRubro = gastoRubro, PuedeGastar = puedeGastar };
         }
 
         private void ActualizaGastoEnPresupuesto(decimal gastoRubro, decimal valorAGastar, string idRubro, int idPresupuesto)
         {
-            //using (SqlConnection conn = _connection.ObtenerConexion())
-            //{
-            //    SqlCommand cmdActualizaPresupuesto = new SqlCommand();
-            //    cmdActualizaPresupuesto.Connection = conn;
+            var conn = _connection.ObtenerConexion();
+            
+            IDbCommand command = conn.CreateCommand();
 
-            //    cmdActualizaPresupuesto.Connection = conn;
-            //    cmdActualizaPresupuesto.CommandText = @"UPDATE Presupuesto SET Gastado= @gastado WHERE (IdRubro= @idRubro AND IdPresupuesto= @idPresupuesto)";
-            //    cmdActualizaPresupuesto.Parameters.AddWithValue("@gastado", gastoRubro + valorAGastar);
-            //    cmdActualizaPresupuesto.Parameters.AddWithValue("@idRubro", idRubro);
-            //    cmdActualizaPresupuesto.Parameters.AddWithValue("@idPresupuesto", idPresupuesto);
+            conn.Open();
+            command.CommandText = @"UPDATE Presupuesto SET Gastado= @gastado WHERE (IdRubro= @idRubro AND IdPresupuesto= @idPresupuesto)";
 
-            //    cmdActualizaPresupuesto.ExecuteNonQuery();
+            var parameterGastado = command.CreateParameter();
+            parameterGastado.ParameterName = "@gastado";
+            parameterGastado.Value = gastoRubro + valorAGastar;
+            command.Parameters.Add(parameterGastado);
 
-            //    conn.Close();  
-            //}
+            var parameterIdRubro = command.CreateParameter();
+            parameterIdRubro.ParameterName = "@idRubro";
+            parameterIdRubro.Value = idRubro;
+            command.Parameters.Add( parameterIdRubro);
+
+            var parameteridPresupuesto = command.CreateParameter();
+            parameteridPresupuesto.ParameterName = "@idPresupuesto";
+            parameteridPresupuesto.Value = idPresupuesto;
+            command.Parameters.Add(parameteridPresupuesto);
+
+            command.ExecuteNonQuery();
+            conn.Close();
         }
 
         public async Task<string> AgregarGasto(AgregarGastoRequest detalle)
@@ -112,67 +129,71 @@ namespace Presupuesto.Repository
 
         public List<Gastos> ObtenerGastos(string command)
         {
-            //SqlConnection conn = _connection.ObtenerConexion();
-            //SqlCommand cmd = new SqlCommand();
-            //cmd.Connection = conn;
-            //cmd.CommandType = CommandType.Text;
-            //cmd.CommandText = command;
+            var conn = _connection.ObtenerConexion();
+            IDbCommand commando = conn.CreateCommand();
+                  
+            commando.CommandText = command;
 
-            //SqlDataReader reader = cmd.ExecuteReader();
+            conn.Open();
+            IDataReader reader = commando.ExecuteReader();
 
-            //var gastos = new List<Gastos>();
-            //while (reader.Read())
-            //{
-            //    var gasto = new Gastos()
-            //    {
-            //        Id = reader.GetString(0),
-            //        IdPresupuesto = reader.GetInt32(1),
-            //        Gasto = reader.GetDecimal(2),
-            //        Usuario = reader.GetString(3),
-            //        FechaCreacion = reader.GetDateTime(4),
-            //        Mes = reader.GetInt32(5),
-            //        Año = reader.GetInt32(6),
+            var gastos = new List<Gastos>();
+            while (reader.Read())
+            {
+                var gasto = new Gastos()
+                {
+                    Id = reader.GetString(0),
+                    IdPresupuesto = reader.GetInt32(1),
+                    Gasto = reader.GetDecimal(2),
+                    Usuario = reader.GetString(3),
+                    FechaCreacion = reader.GetDateTime(4),
+                    Mes = reader.GetInt32(5),
+                    Año = reader.GetInt32(6),
 
-            //    };
-            //    gastos.Add(gasto);
-            //}
-            //conn.Close();
-            //return gastos;
-            return new List<Gastos>();
+                };
+                gastos.Add(gasto);
+            }
+            conn.Close();
+            return gastos;
+
         }
 
         public async Task<string> EliminarGasto(EliminaGasto gasto)
         {
+            //Obtener el valor de lo gastado en presupuesto
+            var puedeGastarResponse = this.PuedeGastar(gasto.IdRubro, 0, gasto.IdPresupuesto);
+            
+            //Obtener el gasto a eliminar
+            var comando = string.Format("SELECT * FROM Gastos WHERE Id='{0}';", gasto.Id);
+            var gastoARestar = this.ObtenerGastos(comando)?.FirstOrDefault()?.Gasto;
 
-            //SqlConnection conn = _connection.ObtenerConexion();
-            //SqlCommand cmd = new SqlCommand();
+            //Se valida que el valor a restar sea menor o igual a lo gastado en presupuesto
+            var sePuedeActualizarPresupuesto = gastoARestar <= puedeGastarResponse.GastoRubro;
 
-            ////Obtener el valor de lo gastado en presupuesto
-            //var puedeGastarResponse = this.PuedeGastar(gasto.IdRubro, 0, gasto.IdPresupuesto);
+            //Actualiza gasto en presupuesto
+            if (sePuedeActualizarPresupuesto)
+                this.ActualizaGastoEnPresupuesto(puedeGastarResponse.GastoRubro, -gastoARestar ?? 0, gasto.IdRubro, gasto.IdPresupuesto);
+            else
+                return "No se pudo eliminar el gasto. El monto del gasto a eliminar excede el gastado del presupuesto";
 
-            ////Obtener el gasto a eliminar
-            //var command = string.Format("SELECT * FROM Gastos WHERE Id={0};",gasto.Id);
-            //var gastoARestar = this.ObtenerGastos(command)?.FirstOrDefault()?.Gasto;
+            //Eliminar gasto
+            var conn = _connection.ObtenerConexion();
 
-            ////Se valida que el valor a restar sea menor o igual a lo gastado en presupuesto
-            //var sePuedeActualizarPresupuesto = gastoARestar <= puedeGastarResponse.GastoRubro;
+            conn.Open();
 
-            ////Actualiza gasto en presupuesto
-            //if (sePuedeActualizarPresupuesto)
-            //    this.ActualizaGastoEnPresupuesto(puedeGastarResponse.GastoRubro, -gastoARestar ?? 0, gasto.IdRubro, gasto.IdPresupuesto);
-            //else
-            //    return "No se pudo eliminar el gasto. El monto del gasto a eliminar excede el gastado del presupuesto";
+            IDbCommand command = conn.CreateCommand();
 
-            ////Eliminar gasto
-            //cmd.Connection = conn;
-            //cmd.CommandType = CommandType.Text;
-            //cmd.CommandText = @"DELETE FROM Gastos WHERE Id = @id";
-            //cmd.Parameters.AddWithValue("@id", gasto.Id);
-            //cmd.ExecuteNonQuery();
-            //conn.Close();
-            //return "El gasto se eliminó correctamente.";
+            command.CommandText = @"DELETE FROM Gastos WHERE Id = @id";
 
-            return "";
+            var parameter = command.CreateParameter();
+            parameter.ParameterName = "@id";
+            parameter.Value = gasto.Id;
+            command.Parameters.Add(parameter);
+
+            command.ExecuteNonQuery();
+
+            conn.Close();
+            return "El gasto se eliminó correctamente.";
         }
 
         public async Task<string> ActualizaGasto(EditarGasto detalle)
@@ -259,31 +280,43 @@ namespace Presupuesto.Repository
 
         private void ActualizaGastoEnPresupuestoPut(decimal valorActual, int idPresupuesto, Operacion operacion)
         {
-            //using (SqlConnection conn = _connection.ObtenerConexion())
-            //{
-            //    SqlCommand cmdActualizaPresupuesto = new SqlCommand();
-            //    cmdActualizaPresupuesto.Connection = conn;
+            var conn = _connection.ObtenerConexion();
 
-            //    cmdActualizaPresupuesto.Connection = conn;
-            //    cmdActualizaPresupuesto.CommandText = @"UPDATE Presupuesto SET Gastado= @gastado WHERE IdPresupuesto = @idPresupuesto;";
-            //    cmdActualizaPresupuesto.Parameters.AddWithValue("@idPresupuesto", idPresupuesto);
-            //    if(operacion.op == "+") 
-            //    {
-            //        cmdActualizaPresupuesto.Parameters.AddWithValue("@gastado", valorActual + operacion.diferencia);
-            //    }
-            //    if(operacion.op == "-")
-            //    {
-            //        cmdActualizaPresupuesto.Parameters.AddWithValue("@gastado", valorActual - operacion.diferencia);
-            //    }
-            //    else if(operacion.op == "=")
-            //    {
-            //        cmdActualizaPresupuesto.Parameters.AddWithValue("@gastado", valorActual);
-            //    }
+            IDbCommand command = conn.CreateCommand();
 
-            //    cmdActualizaPresupuesto.ExecuteNonQuery();
+            conn.Open();
 
-            //    conn.Close();
-            //}
+            command.CommandText = @"UPDATE Presupuesto SET Gastado= @gastado WHERE IdPresupuesto = @idPresupuesto;";
+
+            var parameter = command.CreateParameter();
+            parameter.ParameterName = "@idPresupuesto";
+            parameter.Value = idPresupuesto;
+            command.Parameters.Add(parameter);
+
+            if (operacion.op == "+")
+            {
+                var parameterGastado = command.CreateParameter();
+                parameterGastado.ParameterName = "@gastado";
+                parameterGastado.Value = valorActual + operacion.diferencia;
+                command.Parameters.Add( parameterGastado );
+            }
+            if (operacion.op == "-")
+            {
+                var parameterGastado = command.CreateParameter();
+                parameterGastado.ParameterName = "@gastado";
+                parameterGastado.Value = valorActual - operacion.diferencia;
+                command.Parameters.Add( parameterGastado ); 
+            }
+            else if (operacion.op == "=")
+            {
+                var parameterGastado = command.CreateParameter();
+                parameterGastado.ParameterName = "@gastado";
+                parameterGastado.Value = valorActual;
+                command.Parameters.Add(parameterGastado);
+            }
+               command.ExecuteNonQuery();
+
+               conn.Close();
         }
     }
 
