@@ -24,35 +24,35 @@ namespace Presupuesto.Controllers
         }
 
         [HttpPost("/AgregarGasto", Name = "AgregarGasto")]
-        public async Task<string> AgregarGasto(AgregarGastoRequest detalle)
+        public async Task<string> AgregarGasto([FromBody] AgregarGastoRequest detalle)
             => await _gastosDB.AgregarGasto(detalle);
 
         [HttpPut("/ActualizaGasto", Name = "ActualizaGasto")]
-        public async Task<string> ActualizaGasto(EditarGasto detalle)
+        public async Task<string> ActualizaGasto([FromBody] EditarGasto detalle)
             => await _gastosDB.ActualizaGasto(detalle);
 
         [HttpDelete("/EliminarGasto", Name = "EliminarGasto")]
-        public async Task<string> EliminarGasto(EliminaGasto idGasto)
+        public async Task<string> EliminarGasto([FromBody] EliminaGasto idGasto)
             => await _gastosDB.EliminarGasto(idGasto);
 
-        [HttpGet("/GastosPorMesAño", Name = "GastosPorMesAño")]
-        public async Task<List<Gastos>> GastosPorMesAño(string mesAño)
-            => await _gastosDB.GastosPorMesAño(mesAño);
+        [HttpGet("/GastosPorFecha/{fecha}", Name = "GastosPorFecha")]
+        public async Task<List<Gastos>> GastosPorFecha([FromRoute] string fecha)
+            => await _gastosDB.GastosPorMesAño(fecha);
 
         [HttpPost("/AgregarPresupuesto", Name = "AgregarPresupuesto")]
-        public async Task<int> AgregarPresupuesto(RequestPresupuesto request)
+        public async Task<int> AgregarPresupuesto([FromBody] RequestPresupuesto request)
             => await _presupuestosDB.AgregarPresupuesto(request);
 
-        [HttpGet("/SaldoDisponible", Name = "SaldoDisponible")]
-        public async Task<List<EstadoPresupuesto>> SaldoDisponible(string idPresupuesto)
+        [HttpGet("/SaldoDisponible/{idPresupuesto}", Name = "SaldoDisponible")]
+        public async Task<List<EstadoPresupuesto>> SaldoDisponible([FromRoute] string idPresupuesto)
             => await _presupuestosDB.SaldoDisponible(idPresupuesto);
 
         [HttpGet("/ValidarUsuario/{user}/{password}", Name = "ValidarUsuario")]
-        public async Task<bool> ValidarUsuario(string user, string password)
+        public async Task<bool> ValidarUsuario([FromRoute] string user, [FromRoute] string password)
             => await _validacionUsuarioDB.ValidarUsuario(user, password);
 
-        [HttpGet("/PresupuestoPorFecha", Name = "PresupuestoPorFecha")]
-        public async Task<List<PresupuestoModel>> PresupuestoPorFecha(string fecha)
+        [HttpGet("/PresupuestoPorFecha/{fecha}", Name = "PresupuestoPorFecha")]
+        public async Task<List<PresupuestoModel>> PresupuestoPorFecha([FromRoute] string fecha)
           => await _presupuestosDB.PresupuestoPorFecha(fecha);
     }
 
