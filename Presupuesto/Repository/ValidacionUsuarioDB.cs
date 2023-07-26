@@ -1,5 +1,6 @@
 ﻿using Presupuesto.DataBase;
 using System.Data;
+using System.Data.SqlClient;
 
 namespace Presupuesto.Repository
 {
@@ -14,23 +15,27 @@ namespace Presupuesto.Repository
         {
             var connection = _connection.ObtenerConexion();
 
-            using (IDbCommand command = connection.CreateCommand())
-            {
-                command.CommandText = @"SELECT Usr, Psw FROM Users WHERE Usr = @User";
-                var parameter = command.CreateParameter();
-                parameter.ParameterName = "@User";
-                parameter.Value = user;
+            IDbCommand command = connection.CreateCommand();
 
-                connection.Open();
-                using (IDataReader reader = command.ExecuteReader())
+            command.CommandText = @"SELECT Usr, Psw FROM Users WHERE Usr = @User";
+            var parameters = new List<SqlParameter>()
+            {
+                new SqlParameter()
                 {
-                    while (reader.Read())
-                    {
-                        return reader.GetString(reader.GetOrdinal("Psw")) == password;
-                    }
-                    return false;
+                    ParameterName = "@User",
+                    Value = user,
                 }
+            };
+
+            command.Parameters.Add(parameters);
+            connection.Open();
+
+            IDataReader reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                return reader.GetString(reader.GetOrdinal("Psw")) == password;
             }
+            return false;
         }
     }
 
