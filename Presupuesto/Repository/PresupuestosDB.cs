@@ -1,5 +1,6 @@
 ﻿using Domain.Dtos.Cliente;
 using Presupuesto.DataBase;
+using System.Data;
 
 namespace Presupuesto.Repository
 {
@@ -60,32 +61,38 @@ namespace Presupuesto.Repository
 
         public async Task<List<EstadoPresupuesto>> SaldoDisponible(string idPresupuesto)
         {
-        //    SqlConnection conn = _connection.ObtenerConexion();
-        //    SqlCommand cmd = new SqlCommand();
-        //    cmd.Connection = conn;
-        //    cmd.CommandType = CommandType.Text;
-        //    cmd.CommandText = "SELECT * FROM Presupuesto WHERE Idpresupuesto=@idPresupuesto";
+            var conn = _connection.ObtenerConexion();
+            IDbCommand command = conn.CreateCommand();
 
-        //    cmd.Parameters.AddWithValue("@idPresupuesto", idPresupuesto);
+            command.Connection = conn;
+            command.CommandType = CommandType.Text;
+            command.CommandText = "SELECT * FROM Presupuesto WHERE Idpresupuesto=@idPresupuesto";
 
-        //    SqlDataReader reader = cmd.ExecuteReader();
+            var parameter = command.CreateParameter();
+            parameter.ParameterName = "@idPresupuesto";
+            parameter.Value = idPresupuesto;
+            command.Parameters.Add(parameter);
 
-        //    var saldos = new List<EstadoPresupuesto>();
+            conn.Open();
+            using (IDataReader reader = command.ExecuteReader())
+            {
+                var saldos = new List<EstadoPresupuesto>();
 
-        //    while (reader.Read())
-        //    {
-        //        var estadoPresupuesto = new EstadoPresupuesto()
-        //        {
-        //            Rubro = reader.GetString("Rubro"),
-        //            Disponible = reader.GetDecimal("Presupuesto") - reader.GetDecimal("Gastado")
+                while (reader.Read())
+                {
+                    var estadoPresupuesto = new EstadoPresupuesto()
+                    {
+                        Rubro = reader.GetString(reader.GetOrdinal("rubro")),
+                        Disponible = reader.GetDecimal(reader.GetOrdinal("Presupuesto")) - reader.GetDecimal(reader.GetOrdinal("Gastado"))
 
-        //        };
-        //        saldos.Add(estadoPresupuesto);
-        //    }
+                    };
+                    saldos.Add(estadoPresupuesto);
+                }
 
-        //    conn.Close();
-        //    return saldos;
-            return new List<EstadoPresupuesto>();
+                conn.Close();
+                return saldos;
+             
+            }
         }
 
 
