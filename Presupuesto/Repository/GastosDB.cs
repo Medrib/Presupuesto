@@ -114,23 +114,23 @@ namespace Presupuesto.Repository
 
             var parameter3 = commando.CreateParameter();
             parameter3.ParameterName = "@gasto";
-            parameter3.Value = detalle.IdPresupuesto;
+            parameter3.Value = detalle.Gasto;
 
             var parameter4 = commando.CreateParameter();
             parameter4.ParameterName = "@usuario";
-            parameter4.Value = detalle.IdPresupuesto;
+            parameter4.Value = detalle.Usuario;
 
             var parameter5 = commando.CreateParameter();
             parameter5.ParameterName = "@fechaCreacion";
-            parameter5.Value = detalle.IdPresupuesto;
+            parameter5.Value = DateTime.UtcNow;
 
             var parameter6 = commando.CreateParameter();
             parameter6.ParameterName = "@mes";
-            parameter6.Value = detalle.IdPresupuesto;
+            parameter6.Value = DateTime.UtcNow.AddHours(-3).Year;
 
             var parameter7 = commando.CreateParameter();
             parameter7.ParameterName = "@anio";
-            parameter7.Value = detalle.IdPresupuesto;
+            parameter7.Value = DateTime.UtcNow.AddHours(-3).Month;
 
                commando.Parameters.Add( parameter);
                commando.Parameters.Add( parameter2);
@@ -149,7 +149,7 @@ namespace Presupuesto.Repository
             this.ActualizaGastoEnPresupuesto(puedeGastarResponse.GastoRubro, detalle.Gasto, detalle.IdRubro, detalle.IdPresupuesto);
 
             return idGasto;
-            return "";
+          
             
         }
 
