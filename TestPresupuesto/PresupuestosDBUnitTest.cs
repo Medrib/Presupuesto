@@ -93,6 +93,53 @@ namespace TestPresupuesto
             //Assert
             Assert.Equal(response[0].Rubro, res[0].Rubro);
         }
+        [Fact]
+        public async Task SaldoDisponible_OK()
+        {
+            // Arrange 
+            var estadoPresupuesto = new EstadoPresupuesto()
+            {
+                Rubro = "INDUMENTARIA",
+                Disponible = 3000
+            };
+
+            //
+            var readerMock = new Mock<IDataReader>();
+            readerMock.Setup(reader => reader.GetOrdinal("rubro")).Returns(0);
+            readerMock.Setup(reader => reader.GetString(0)).Returns("INDUMENTARIA");
+
+            readerMock.Setup(reader => reader.GetOrdinal("Presupuesto")).Returns(1);
+            readerMock.Setup(reader => reader.GetDecimal(1)).Returns(30000);
+
+            readerMock.Setup(reader => reader.GetOrdinal("Gastado")).Returns(2);
+            readerMock.Setup(reader => reader.GetDecimal(2)).Returns(1000);
+
+            //
+            var parameters = new Mock<IDataParameterCollection>();
+
+            var parameterMock = new Mock<IDbDataParameter>();
+            parameterMock.Setup(_ => _.ParameterName).Returns("@idPresupuesto");
+            parameterMock.Setup(_ => _.Value).Returns("123456");
+
+            parameters.Setup(parameters => parameters.Add(parameterMock.Object));
+            //
+            var connectionMock = MockDependencies.GetConnectionMock(readerMock, parameters);
+            _connection.Setup(x => x.ObtenerConexion())
+                .Returns(connectionMock.Object);
+
+            //Act
+            var res = await _presupuestosDB.SaldoDisponible("123456");
+
+            //Assert
+           // Assert.Equal(, res[0].Disponible);
+        }
+
+
+
 
     }
+
+
+
+    
 }
