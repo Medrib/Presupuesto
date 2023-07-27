@@ -3,6 +3,7 @@ using Domain.Shared;
 using Presupuesto.DataBase;
 using System.Data;
 using System.Data.SqlClient;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Presupuesto.Repository
 {
@@ -87,40 +88,67 @@ namespace Presupuesto.Repository
 
         public async Task<string> AgregarGasto(AgregarGastoRequest detalle)
         {
-            ////Se generan ids de manera random
-            //Random rnd = new Random();
-            //var parteEntera = rnd.Next(10000000, 100000000);
-            //var idGasto = detalle.IdRubro + parteEntera;
+            //Se generan ids de manera random
+            Random rnd = new Random();
+            var parteEntera = rnd.Next(10000000, 100000000);
+            var idGasto = detalle.IdRubro + parteEntera;
 
-            ////Se verifica que se pueda hacer ese gasto
-            //var puedeGastarResponse = this.PuedeGastar(detalle.IdRubro, detalle.Gasto, detalle.IdPresupuesto);
-            //if (!puedeGastarResponse.PuedeGastar) { return "Excede el presupuesto estimado"; }
+            //Se verifica que se pueda hacer ese gasto
+            var puedeGastarResponse = this.PuedeGastar(detalle.IdRubro, detalle.Gasto, detalle.IdPresupuesto);
+            if (!puedeGastarResponse.PuedeGastar) { return "Excede el presupuesto estimado"; }
 
-            ////Se inserta un gasto a la tabla de gastos
-            //SqlConnection conn = _connection.ObtenerConexion();
-            //using (SqlCommand cdmAgregaGasto = new SqlCommand())
-            //{
-            //    cdmAgregaGasto.Connection = conn;
-            //    cdmAgregaGasto.CommandType = CommandType.Text;
-            //    cdmAgregaGasto.CommandText = @"INSERT INTO Gastos(Id,IdPresupuesto,Gasto,Usuario,FechaCreacion, Mes, Anio) VALUES (@idGasto,@idPresupuesto,@gasto,@usuario,@fechaCreacion, @mes, @anio)";
+            //Se inserta un gasto a la tabla de gastos
+            var conn = _connection.ObtenerConexion();
+            IDbCommand commando = conn.CreateCommand();
 
-            //    cdmAgregaGasto.Parameters.AddWithValue("@idGasto", idGasto);
-            //    cdmAgregaGasto.Parameters.AddWithValue("@idPresupuesto", detalle.IdPresupuesto);
-            //    cdmAgregaGasto.Parameters.AddWithValue("@gasto", detalle.Gasto);
-            //    cdmAgregaGasto.Parameters.AddWithValue("@usuario", detalle.Usuario);
-            //    cdmAgregaGasto.Parameters.AddWithValue("@fechaCreacion", DateTime.UtcNow.AddHours(-3));
-            //    cdmAgregaGasto.Parameters.AddWithValue("@mes", DateTime.UtcNow.AddHours(-3).Month);
-            //    cdmAgregaGasto.Parameters.AddWithValue("@anio", DateTime.UtcNow.AddHours(-3).Year);
+            commando.CommandText = @"INSERT INTO Gastos(Id,IdPresupuesto,Gasto,Usuario,FechaCreacion, Mes, Anio) VALUES (@idGasto,@idPresupuesto,@gasto,@usuario,@fechaCreacion, @mes, @anio)";
 
-            //    cdmAgregaGasto.ExecuteNonQuery();
-            //}
 
-            //conn.Close();
+            var parameter = commando.CreateParameter();
+            parameter.ParameterName = "@idGasto";
+            parameter.Value = idGasto;
 
-            ////Se actualiza gasto en el presupuesto
-            //this.ActualizaGastoEnPresupuesto(puedeGastarResponse.GastoRubro,detalle.Gasto,detalle.IdRubro,detalle.IdPresupuesto);
+            var parameter2 = commando.CreateParameter();
+            parameter2.ParameterName = "@idPresupuesto";
+            parameter2.Value = detalle.IdPresupuesto;
 
-            //return idGasto;
+            var parameter3 = commando.CreateParameter();
+            parameter3.ParameterName = "@gasto";
+            parameter3.Value = detalle.IdPresupuesto;
+
+            var parameter4 = commando.CreateParameter();
+            parameter4.ParameterName = "@usuario";
+            parameter4.Value = detalle.IdPresupuesto;
+
+            var parameter5 = commando.CreateParameter();
+            parameter5.ParameterName = "@fechaCreacion";
+            parameter5.Value = detalle.IdPresupuesto;
+
+            var parameter6 = commando.CreateParameter();
+            parameter6.ParameterName = "@mes";
+            parameter6.Value = detalle.IdPresupuesto;
+
+            var parameter7 = commando.CreateParameter();
+            parameter7.ParameterName = "@anio";
+            parameter7.Value = detalle.IdPresupuesto;
+
+               commando.Parameters.Add( parameter);
+               commando.Parameters.Add( parameter2);
+               commando.Parameters.Add( parameter3);
+               commando.Parameters.Add( parameter4);
+               commando.Parameters.Add( parameter5);
+               commando.Parameters.Add( parameter6);
+               commando.Parameters.Add( parameter7);
+
+            commando.ExecuteNonQuery();
+            
+
+            conn.Close();
+
+            //Se actualiza gasto en el presupuesto
+            this.ActualizaGastoEnPresupuesto(puedeGastarResponse.GastoRubro, detalle.Gasto, detalle.IdRubro, detalle.IdPresupuesto);
+
+            return idGasto;
             return "";
             
         }
@@ -196,82 +224,96 @@ namespace Presupuesto.Repository
 
         public async Task<string> ActualizaGasto(EditarGasto detalle)
         {
-            //var puedeGastarResponse = this.PuedeGastar(detalle.IdRubro, detalle.Gasto, detalle.IdPresupuesto);
-            //if (!puedeGastarResponse.PuedeGastar) { return "Excede el presupuesto estimado"; }
+            var puedeGastarResponse = this.PuedeGastar(detalle.IdRubro, detalle.Gasto, detalle.IdPresupuesto);
+            if (!puedeGastarResponse.PuedeGastar) { return "Excede el presupuesto estimado"; }
 
-            ////se verifica si se debe sumar o restar en el presupuesto Gastado
-            //var verifica = this.OperacionEnPresupuesto(detalle);
+            //se verifica si se debe sumar o restar en el presupuesto Gastado
+            var verifica = this.OperacionEnPresupuesto(detalle);
 
-            ////Actualiza Presupuesto Gastado
-            //this.ActualizaGastoEnPresupuestoPut(puedeGastarResponse.GastoRubro, detalle.IdPresupuesto, verifica);
+            //Actualiza Presupuesto Gastado
+            this.ActualizaGastoEnPresupuestoPut(puedeGastarResponse.GastoRubro, detalle.IdPresupuesto, verifica);
 
-            ////actualiza Tabla Gastos
-            //using (SqlConnection conn = _connection.ObtenerConexion())
-            //{
-            //    using (SqlCommand cmd = new SqlCommand())
-            //    {
-            //        cmd.Connection = conn;
-            //        cmd.CommandType = CommandType.Text;
-            //        cmd.CommandText = @"UPDATE Gastos SET Gasto = @gasto WHERE Id = @id AND Usuario = @usuario AND IdPresupuesto = @idPresupuesto; ";
+            //actualiza Tabla Gastos
+            var conn = _connection.ObtenerConexion();
+            IDbCommand command = conn.CreateCommand();
 
-            //        cmd.Parameters.AddWithValue("@gasto", detalle.Gasto);
-            //        cmd.Parameters.AddWithValue("@id", detalle.Id);
-            //        cmd.Parameters.AddWithValue("@usuario", detalle.Usuario);
-            //        cmd.Parameters.AddWithValue("@idPresupuesto", detalle.IdPresupuesto);
+            command.CommandText = @"UPDATE Gastos SET Gasto = @gasto WHERE Id = @id AND Usuario = @usuario AND IdPresupuesto = @idPresupuesto; ";
 
-            //        //conn.Open();
-            //        cmd.ExecuteNonQuery();
+            var parameter1 = command.CreateParameter();
+            parameter1.ParameterName = "@gasto";
+            parameter1.Value = detalle.Gasto;
 
-            //        conn.Close();
-            //        return "El gasto se actualizó correctamente.";
-            //    }
-            //}
+            var parameter2 = command.CreateParameter();
+            parameter2.ParameterName = "@id";
+            parameter2.Value = detalle.Id;
+            
 
-            return "";
+            var parameter3 = command.CreateParameter();
+            parameter3.ParameterName = "@usuario";
+            parameter3.Value = detalle.Usuario;
+            
+
+            var parameter4 = command.CreateParameter();
+            parameter4.ParameterName = "@idPresupuesto";
+            parameter4.Value = detalle.IdPresupuesto;
+           
+
+            command.Parameters.Add( parameter1);
+            command.Parameters.Add( parameter2);
+            command.Parameters.Add( parameter3);
+            command.Parameters.Add(parameter4);
+
+             //conn.Open();
+            command.ExecuteNonQuery();
+
+               return "El gasto se actualizó correctamente.";
+           
 
         }
 
         private Operacion OperacionEnPresupuesto(EditarGasto detalle)
         {
-            //// chequea si el gasto editado es mayor o menor al original
-            //using (SqlConnection conn = _connection.ObtenerConexion())
-            //{
-            //    decimal gasto = 0;
-            //    using (SqlCommand cmd = new SqlCommand())
-            //    {
-            //        cmd.Connection = conn;
-            //        cmd.CommandType = CommandType.Text;
-            //        cmd.CommandText = @"SELECT * FROM Gastos where Id=@Id";
+            // chequea si el gasto editado es mayor o menor al original
+            var connection = _connection.ObtenerConexion();
 
-            //        cmd.Parameters.AddWithValue("@Id", detalle.Id);
+            IDbCommand command = connection.CreateCommand();
+            
+            decimal gasto = 0;
+            command.CommandText = @"SELECT * FROM Gastos where Id=@Id";
 
-            //        SqlDataReader reader = cmd.ExecuteReader();
+            var parameter = command.CreateParameter();
+            parameter.ParameterName = "@Id";
+            parameter.Value = detalle.Id;
 
-            //        while(reader.Read())
-            //        {
-            //            //gasto original
-            //            gasto = reader.GetDecimal("Gasto");
-            //        }
-            //    }
-            //    //compara los 2 gastos para saber si se debe restar o sumar en la tabla Presupuesto
-            //    if (gasto < detalle.Gasto)
-            //    {
-            //        conn.Close();
-            //        decimal valor = detalle.Gasto - gasto;
-            //        return new Operacion() { op= "+", diferencia = valor };
-            //    }
-            //    if (gasto > detalle.Gasto)
-            //    {
-            //        conn.Close();
-            //        decimal valor = gasto - detalle.Gasto;
-            //        return new Operacion() { op = "-", diferencia = valor};
-            //    }
-            //    else
-            //    {
-            //        conn.Close();
-            //        return new Operacion() { op = "=", diferencia= 0};
-            //    }
-            //}
+            command.Parameters.Add(parameter);
+
+            IDataReader reader = command.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        //gasto original
+                        gasto = reader.GetDecimal(2);
+                    }
+                
+                //compara los 2 gastos para saber si se debe restar o sumar en la tabla Presupuesto
+                if (gasto < detalle.Gasto)
+                {
+                    connection.Close();
+                    decimal valor = detalle.Gasto - gasto;
+                    return new Operacion() { op = "+", diferencia = valor };
+                }
+                if (gasto > detalle.Gasto)
+                {
+                    connection.Close();
+                    decimal valor = gasto - detalle.Gasto;
+                    return new Operacion() { op = "-", diferencia = valor };
+                }
+                else
+                {
+                    connection.Close();
+                    return new Operacion() { op = "=", diferencia = 0 };
+                }
+            
 
             return new Operacion();
         }
