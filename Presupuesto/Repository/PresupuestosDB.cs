@@ -29,6 +29,8 @@ namespace Presupuesto.Repository
 
             command.Connection = conn;
             command.CommandType = CommandType.Text;
+            conn.Open();
+
             var parameters = new List<SqlParameter>();
             {
                 while (i <= cantElementos)
@@ -82,7 +84,7 @@ namespace Presupuesto.Repository
                 new SqlParameter(){ ParameterName = "@idPresupuesto", Value = idPresupuesto}
             };
 
-            command.Parameters.Add(parameters);
+            command.Parameters.Add(parameters[0]);
             conn.Open();
 
             IDataReader reader = command.ExecuteReader();
@@ -118,7 +120,8 @@ namespace Presupuesto.Repository
                 new SqlParameter(){ ParameterName = "@anio", Value = fecha2.Año}
             };
 
-            command.Parameters.Add(parameters);
+            command.Parameters.Add(parameters[0]);
+            command.Parameters.Add(parameters[1]);
             connection.Open();
 
             IDataReader reader = command.ExecuteReader();

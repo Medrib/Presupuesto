@@ -27,7 +27,7 @@ namespace Presupuesto.Repository
                 }
             };
 
-            command.Parameters.Add(parameters);
+            command.Parameters.Add(parameters[0]);
             connection.Open();
 
             IDataReader reader = command.ExecuteReader();

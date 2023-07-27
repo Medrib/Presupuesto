@@ -3,7 +3,7 @@ using Domain.Shared;
 using Presupuesto.DataBase;
 using System.Data;
 using System.Data.SqlClient;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+
 
 namespace Presupuesto.Repository
 {
@@ -43,7 +43,8 @@ namespace Presupuesto.Repository
                 new SqlParameter(){ ParameterName = "@idPresupuesto", Value = idPresupuesto}
             };
 
-            command.Parameters.Add(parameters);
+            command.Parameters.Add(parameters[0]);
+            command.Parameters.Add(parameters[1]);
 
             conn.Open();
             IDataReader reader = command.ExecuteReader();
@@ -58,7 +59,7 @@ namespace Presupuesto.Repository
                 return new PuedeGastarResponse() { GastoRubro = gastoRubro, PuedeGastar = puedeGastar };
         }
 
-        private void ActualizaGastoEnPresupuesto(decimal gastoRubro, decimal valorAGastar, string idRubro, int idPresupuesto)
+        public void ActualizaGastoEnPresupuesto(decimal gastoRubro, decimal valorAGastar, string idRubro, int idPresupuesto)
         {
             var conn = _connection.ObtenerConexion();
             
@@ -100,7 +101,7 @@ namespace Presupuesto.Repository
             //Se inserta un gasto a la tabla de gastos
             var conn = _connection.ObtenerConexion();
             IDbCommand commando = conn.CreateCommand();
-
+            conn.Open();
             commando.CommandText = @"INSERT INTO Gastos(Id,IdPresupuesto,Gasto,Usuario,FechaCreacion, Mes, Anio) VALUES (@idGasto,@idPresupuesto,@gasto,@usuario,@fechaCreacion, @mes, @anio)";
 
 
@@ -236,7 +237,7 @@ namespace Presupuesto.Repository
             //actualiza Tabla Gastos
             var conn = _connection.ObtenerConexion();
             IDbCommand command = conn.CreateCommand();
-
+            conn.Open();
             command.CommandText = @"UPDATE Gastos SET Gasto = @gasto WHERE Id = @id AND Usuario = @usuario AND IdPresupuesto = @idPresupuesto; ";
 
             var parameter1 = command.CreateParameter();
@@ -247,26 +248,23 @@ namespace Presupuesto.Repository
             parameter2.ParameterName = "@id";
             parameter2.Value = detalle.Id;
             
-
             var parameter3 = command.CreateParameter();
             parameter3.ParameterName = "@usuario";
             parameter3.Value = detalle.Usuario;
-            
 
             var parameter4 = command.CreateParameter();
             parameter4.ParameterName = "@idPresupuesto";
             parameter4.Value = detalle.IdPresupuesto;
            
-
-            command.Parameters.Add( parameter1);
-            command.Parameters.Add( parameter2);
-            command.Parameters.Add( parameter3);
+            command.Parameters.Add(parameter1);
+            command.Parameters.Add(parameter2);
+            command.Parameters.Add(parameter3);
             command.Parameters.Add(parameter4);
 
-             //conn.Open();
+      
             command.ExecuteNonQuery();
-
-               return "El gasto se actualizó correctamente.";
+            conn.Close();
+            return "El gasto se actualizó correctamente.";
            
 
         }
@@ -286,7 +284,7 @@ namespace Presupuesto.Repository
             parameter.Value = detalle.Id;
 
             command.Parameters.Add(parameter);
-
+            connection.Open();
             IDataReader reader = command.ExecuteReader();
 
                     while (reader.Read())
@@ -314,8 +312,6 @@ namespace Presupuesto.Repository
                     return new Operacion() { op = "=", diferencia = 0 };
                 }
             
-
-            return new Operacion();
         }
 
         private void ActualizaGastoEnPresupuestoPut(decimal valorActual, int idPresupuesto, Operacion operacion)
@@ -358,6 +354,8 @@ namespace Presupuesto.Repository
 
                conn.Close();
         }
+
+    
     }
 
     public interface IGastosDB
@@ -368,6 +366,7 @@ namespace Presupuesto.Repository
         Task<string> EliminarGasto(EliminaGasto gasto);
         Task<string> ActualizaGasto(EditarGasto detalle);
         PuedeGastarResponse PuedeGastar(string idRubro, decimal valorAGastar, int idPresupuesto);
+        void ActualizaGastoEnPresupuesto(decimal gastoRubro, decimal valorAGastar, string idRubro, int idPresupuesto);
 
     }
 }
