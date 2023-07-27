@@ -30,26 +30,39 @@ namespace Presupuesto.Repository
             command.Connection = conn;
             command.CommandType = CommandType.Text;
             var parameters = new List<SqlParameter>();
-            while (i <= cantElementos)
             {
-                command.CommandText = string.Format(@"INSERT INTO Presupuesto(IdPresupuesto,IdRubro,Rubro,Usuario,Presupuesto, Gastado, FechaDeCreacion,Anio,Mes) 
+                while (i <= cantElementos)
+                {
+                    command.CommandText = string.Format(@"INSERT INTO Presupuesto(IdPresupuesto,IdRubro,Rubro,Usuario,Presupuesto, Gastado, FechaDeCreacion,Anio,Mes) 
                                             VALUES (@idPresupuesto{0},@idRubro{0},@rubro{0},@usuario{0},@presupuesto{0},@gastado{0}, @fechadecreacion{0},@anio{0}, @mes{0})", i);
 
-                detalle = request.detallePresupuesto[i];
-                parameters.Add(new SqlParameter() { ParameterName = "@idPresupuesto" + i, Value = idPresupuesto });
-                parameters.Add(new SqlParameter() { ParameterName = "@idRubro" + i, Value = detalle.IdRubro });
-                parameters.Add(new SqlParameter() { ParameterName = "@rubro" + i, Value = detalle.Rubro });
-                parameters.Add(new SqlParameter() { ParameterName = "@usuario" + i, Value = request.Usuario });
-                parameters.Add(new SqlParameter() { ParameterName = "@presupuesto" + i, Value = detalle.Presupuesto });
-                parameters.Add(new SqlParameter() { ParameterName = "@gastado" + i, Value = 0 });
-                parameters.Add(new SqlParameter() { ParameterName = "@fechadecreacion" + i, Value = horarioArg });
-                parameters.Add(new SqlParameter() { ParameterName = "@anio" + i, Value = DateTime.UtcNow.AddHours(-3).Year });
-                parameters.Add(new SqlParameter() { ParameterName = "@mes" + i, Value = DateTime.UtcNow.AddHours(-3).Month });
-                command.ExecuteNonQuery();
+                    detalle = request.detallePresupuesto[i];
+                    parameters.Add(new SqlParameter() { ParameterName = "@idPresupuesto" + i, Value = idPresupuesto });
+                    parameters.Add(new SqlParameter() { ParameterName = "@idRubro" + i, Value = detalle.IdRubro });
+                    parameters.Add(new SqlParameter() { ParameterName = "@rubro" + i, Value = detalle.Rubro });
+                    parameters.Add(new SqlParameter() { ParameterName = "@usuario" + i, Value = request.Usuario });
+                    parameters.Add(new SqlParameter() { ParameterName = "@presupuesto" + i, Value = detalle.Presupuesto });
+                    parameters.Add(new SqlParameter() { ParameterName = "@gastado" + i, Value = 0 });
+                    parameters.Add(new SqlParameter() { ParameterName = "@fechadecreacion" + i, Value = horarioArg });
+                    parameters.Add(new SqlParameter() { ParameterName = "@anio" + i, Value = DateTime.UtcNow.AddHours(-3).Year });
+                    parameters.Add(new SqlParameter() { ParameterName = "@mes" + i, Value = DateTime.UtcNow.AddHours(-3).Month });
 
-                i++;
-            }
+                    command.Parameters.Add(parameters[0]);
+                    command.Parameters.Add(parameters[1]);
+                    command.Parameters.Add(parameters[2]);
+                    command.Parameters.Add(parameters[3]);
+                    command.Parameters.Add(parameters[4]);
+                    command.Parameters.Add(parameters[5]);
+                    command.Parameters.Add(parameters[6]);
+                    command.Parameters.Add(parameters[7]);
+                    command.Parameters.Add(parameters[8]);
+                  
+                    command.ExecuteNonQuery();
 
+                    i++;
+                }
+            };
+              
             conn.Close();
             return idPresupuesto;
         }
