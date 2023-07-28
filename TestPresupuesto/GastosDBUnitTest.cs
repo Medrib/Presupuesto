@@ -1,4 +1,5 @@
-﻿using Domain.Dtos.Cliente;
+﻿using Azure.Core;
+using Domain.Dtos.Cliente;
 using Moq;
 using Presupuesto.DataBase;
 using Presupuesto.Repository;
@@ -39,7 +40,7 @@ namespace TestPresupuesto
             _readerMock.Setup(reader => reader.GetString(3)).Returns("pepito");
 
             _readerMock.Setup(reader => reader.GetOrdinal("FechaCreacion")).Returns(4);
-            _readerMock.Setup(reader => reader.GetDateTime(4)).Returns(new DateTime(2023, 07, 10, 00,00,00));
+            _readerMock.Setup(reader => reader.GetDateTime(4)).Returns(new DateTime(2023, 07, 10, 00, 00, 00));
 
             _readerMock.Setup(reader => reader.GetOrdinal("Mes")).Returns(5);
             _readerMock.Setup(reader => reader.GetInt32(5)).Returns(07);
@@ -81,7 +82,7 @@ namespace TestPresupuesto
 
             //Assert
             Assert.Equal(response[0].Id, res[0].Id);
-         
+
         }
         [Fact]
         public async Task EliminarGasto_ok()
@@ -92,12 +93,12 @@ namespace TestPresupuesto
             _connection.Setup(x => x.ObtenerConexion()).Returns(connectionMock.Object);
 
             var interfaceGastoDB = new Mock<IGastosDB>();
-         
+
             interfaceGastoDB.Setup(x => x.PuedeGastar(
                 It.IsAny<string>(), It.IsAny<decimal>(), It.IsAny<int>()))
                 .Returns(new PuedeGastarResponse() { GastoRubro = 1000, PuedeGastar = true }
                 );
-            
+
             //interfaceGastoDB.Setup(x => x.ActualizaGastoEnPresupuesto(
             //    It.IsAny<decimal>(), It.IsAny<decimal>(), It.IsAny<string>(), It.IsAny<int>()));
 
@@ -137,7 +138,98 @@ namespace TestPresupuesto
 
             //Assert
             Assert.Equal(message, res);
+
+
+
         }
+
+        [Fact]
+        public async Task PuedeGastar()
+        {
+            //var idRubro = "123456";
+            //var valorAGastar = 123;
+            //var IdPresupuesto = 123456;
+
+            //var puedeGastarResponse = new PuedeGastarResponse()
+            //{
+            //    GastoRubro = 100,
+            //    PuedeGastar = true
+
+            //};
+
+            //_readerMock.Setup(reader => reader.GetOrdinal("@Gastado")).Returns(0);
+            //_readerMock.Setup(reader => reader.GetDecimal(5)).Returns(100);
+
+            //_readerMock.Setup(reader => reader.GetOrdinal("@Presupuesto")).Returns(1);
+            //_readerMock.Setup(reader => reader.GetDecimal(4)).Returns(3000);
+
+
+            ////
+            //_parametersMock.Setup(p => p.ParameterName).Returns("@IdRubro");
+            //_parametersMock.Setup(v => v.Value).Returns("IND");
+
+            //_parametersMock.Setup(p => p.ParameterName).Returns("@IdPresupuesto");
+            //_parametersMock.Setup(v => v.Value).Returns(123456);
+
+            //_dataParameter.Setup(command => command.Add(_parametersMock.Object));
+
+            //var parameters = new Mock<IDataParameterCollection>();
+
+            //var connectionMock = MockDependencies.GetConnectionMock(_readerMock, parameters);
+            //_connection.Setup(x => x.ObtenerConexion())
+            //    .Returns(connectionMock.Object);
+
+            //var respuesta = _gastosDB.PuedeGastar(idRubro, valorAGastar, IdPresupuesto);
+
+
+            ////
+            //Assert.NotNull(respuesta);
+            //Assert.Equal(respuesta.GastoRubro, puedeGastarResponse.GastoRubro);
+
+
+
+
+
+        }
+        [Fact]
+        public async Task AgregarGasto_ok()
+        {
+            // arrange
+      
+            var request = new AgregarGastoRequest()
+            {
+                Gasto = 443,
+                IdPresupuesto = 1000,
+                IdRubro = "",
+                Usuario = "cristian"
+
+            };
+            
+            _readerMock.Setup(reader => reader.GetDecimal(5)).Returns(100);
+
+            _readerMock.Setup(reader => reader.GetDecimal(4)).Returns(3000);
+
+            _dataParameter.Setup(command => command.Add(_parametersMock.Object));
+
+
+            var parameters = new Mock<IDataParameterCollection>();
+
+            var connectionMock = MockDependencies.GetConnectionMock(_readerMock, _dataParameter);
+            _connection.Setup(x => x.ObtenerConexion())
+                .Returns(connectionMock.Object);
+            //
+            var res = await _gastosDB.AgregarGasto(request);
+
+            // assert
+
+            Assert.NotNull(res);
+            
+
+
+        }
+
+      
+
 
     }
 }

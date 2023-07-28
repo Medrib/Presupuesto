@@ -3,6 +3,7 @@ using Domain.Shared;
 using Presupuesto.DataBase;
 using System.Data;
 using System.Data.SqlClient;
+using System.Reflection.Metadata;
 
 
 namespace Presupuesto.Repository
@@ -67,21 +68,16 @@ namespace Presupuesto.Repository
 
             conn.Open();
             command.CommandText = @"UPDATE Presupuesto SET Gastado= @gastado WHERE (IdRubro= @idRubro AND IdPresupuesto= @idPresupuesto)";
-
-            var parameterGastado = command.CreateParameter();
-            parameterGastado.ParameterName = "@gastado";
-            parameterGastado.Value = gastoRubro + valorAGastar;
-            command.Parameters.Add(parameterGastado);
-
-            var parameterIdRubro = command.CreateParameter();
-            parameterIdRubro.ParameterName = "@idRubro";
-            parameterIdRubro.Value = idRubro;
-            command.Parameters.Add( parameterIdRubro);
-
-            var parameteridPresupuesto = command.CreateParameter();
-            parameteridPresupuesto.ParameterName = "@idPresupuesto";
-            parameteridPresupuesto.Value = idPresupuesto;
-            command.Parameters.Add(parameteridPresupuesto);
+            
+            var parameters = new List<SqlParameter>()
+            {
+                new SqlParameter(){ ParameterName = "@gastado", Value = gastoRubro + valorAGastar},
+                new SqlParameter(){ ParameterName = "@idRubro", Value = idRubro},
+                new SqlParameter(){ ParameterName = "@idPresupuesto", Value = idPresupuesto}
+            };
+            command.Parameters.Add(parameters[0]);
+            command.Parameters.Add(parameters[1]);
+            command.Parameters.Add(parameters[2]);
 
             command.ExecuteNonQuery();
             conn.Close();
@@ -105,42 +101,26 @@ namespace Presupuesto.Repository
             commando.CommandText = @"INSERT INTO Gastos(Id,IdPresupuesto,Gasto,Usuario,FechaCreacion, Mes, Anio) VALUES (@idGasto,@idPresupuesto,@gasto,@usuario,@fechaCreacion, @mes, @anio)";
 
 
-            var parameter = commando.CreateParameter();
-            parameter.ParameterName = "@idGasto";
-            parameter.Value = idGasto;
-
-            var parameter2 = commando.CreateParameter();
-            parameter2.ParameterName = "@idPresupuesto";
-            parameter2.Value = detalle.IdPresupuesto;
-
-            var parameter3 = commando.CreateParameter();
-            parameter3.ParameterName = "@gasto";
-            parameter3.Value = detalle.Gasto;
-
-            var parameter4 = commando.CreateParameter();
-            parameter4.ParameterName = "@usuario";
-            parameter4.Value = detalle.Usuario;
-
-            var parameter5 = commando.CreateParameter();
-            parameter5.ParameterName = "@fechaCreacion";
-            parameter5.Value = DateTime.UtcNow;
-
-            var parameter6 = commando.CreateParameter();
-            parameter6.ParameterName = "@mes";
-            parameter6.Value = DateTime.UtcNow.AddHours(-3).Year;
-
-            var parameter7 = commando.CreateParameter();
-            parameter7.ParameterName = "@anio";
-            parameter7.Value = DateTime.UtcNow.AddHours(-3).Month;
-
-               commando.Parameters.Add( parameter);
-               commando.Parameters.Add( parameter2);
-               commando.Parameters.Add( parameter3);
-               commando.Parameters.Add( parameter4);
-               commando.Parameters.Add( parameter5);
-               commando.Parameters.Add( parameter6);
-               commando.Parameters.Add( parameter7);
-
+            var parameters = new List<SqlParameter>()
+            {
+                new SqlParameter(){ ParameterName = "@idGasto", Value = idGasto},
+                new SqlParameter(){ ParameterName = "@idPresupuesto", Value = detalle.IdPresupuesto},
+                new SqlParameter(){ ParameterName = "@gasto", Value = detalle.Gasto},
+                new SqlParameter(){ ParameterName = "@usuario", Value =detalle.Usuario},
+                new SqlParameter(){ ParameterName = "@fechaCreacion", Value = DateTime.UtcNow},
+                new SqlParameter(){ ParameterName = "@mes", Value = DateTime.UtcNow.AddHours(-3).Month},
+                new SqlParameter(){ ParameterName = "@anio", Value = DateTime.UtcNow.AddHours(-3).Year}
+            };
+        
+         
+                commando.Parameters.Add(parameters[0]);
+                commando.Parameters.Add(parameters[1]);
+                commando.Parameters.Add(parameters[2]);
+                commando.Parameters.Add(parameters[3]);
+                commando.Parameters.Add(parameters[4]);
+                commando.Parameters.Add(parameters[5]);
+                commando.Parameters.Add(parameters[6]);
+ 
             commando.ExecuteNonQuery();
             
 
