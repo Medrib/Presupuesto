@@ -48,14 +48,8 @@ namespace TestPresupuesto
             _readerMock.Setup(reader => reader.GetOrdinal("Anio")).Returns(6);
             _readerMock.Setup(reader => reader.GetInt32(6)).Returns(2023);
 
-            //
-            _parametersMock.Setup(p => p.ParameterName).Returns("@mes");
-            _parametersMock.Setup(v => v.Value).Returns(07);
 
-            _parametersMock.Setup(p => p.ParameterName).Returns("@anio");
-            _parametersMock.Setup(v => v.Value).Returns(2023);
-
-            _dataParameter.Setup(command => command.Add(_parametersMock.Object));
+           //dataParameter.Setup(command => command.Add(_parametersMock.Object));
 
             //
             var fecha = "2023-07";
@@ -176,6 +170,36 @@ namespace TestPresupuesto
             
 
 
+        }
+
+        [Fact]
+        public async Task ActualizaGasto_ok()
+        {
+            //Arrage
+            var connectionMock = MockDependencies.GetConnectionMock(_readerMock, _dataParameter);
+            _connection.Setup(x => x.ObtenerConexion()).Returns(connectionMock.Object);
+
+            _readerMock.Setup(reader => reader.GetDecimal(5)).Returns(500);
+        
+            _readerMock.Setup(reader => reader.GetDecimal(4)).Returns(5000);
+
+            _readerMock.Setup(reader => reader.GetDecimal(2)).Returns(1000);
+       
+            var editarGasto = new EditarGasto()
+            {
+                Id = "IND00000001",
+                IdPresupuesto = 123456,
+                IdRubro = "IND",
+                Gasto = 1500,
+                Usuario = "usuario13"
+            };
+            var message = "El gasto se actualizó correctamente.";
+
+            //Act
+            var res = await _gastosDB.ActualizaGasto(editarGasto);
+
+            //Assert
+            Assert.Equal(message, res);
         }
 
       

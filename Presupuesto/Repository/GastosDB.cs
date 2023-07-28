@@ -93,7 +93,7 @@ namespace Presupuesto.Repository
             //Se verifica que se pueda hacer ese gasto
             var puedeGastarResponse = this.PuedeGastar(detalle.IdRubro, detalle.Gasto, detalle.IdPresupuesto);
             if (!puedeGastarResponse.PuedeGastar) { return "Excede el presupuesto estimado"; }
-
+          
             //Se inserta un gasto a la tabla de gastos
             var conn = _connection.ObtenerConexion();
             IDbCommand commando = conn.CreateCommand();
@@ -222,27 +222,18 @@ namespace Presupuesto.Repository
             conn.Open();
             command.CommandText = @"UPDATE Gastos SET Gasto = @gasto WHERE Id = @id AND Usuario = @usuario AND IdPresupuesto = @idPresupuesto; ";
 
-            var parameter1 = command.CreateParameter();
-            parameter1.ParameterName = "@gasto";
-            parameter1.Value = detalle.Gasto;
+            var parameters = new List<SqlParameter>()
+            {
+                new SqlParameter(){ ParameterName = "@gasto", Value = detalle.Gasto},
+                new SqlParameter(){ ParameterName = "@id", Value = detalle.Id},
+                new SqlParameter(){ ParameterName = "@usuario", Value = detalle.Usuario},
+                new SqlParameter(){ ParameterName = "@idPresupuesto", Value = detalle.IdPresupuesto},
+            };
 
-            var parameter2 = command.CreateParameter();
-            parameter2.ParameterName = "@id";
-            parameter2.Value = detalle.Id;
-            
-            var parameter3 = command.CreateParameter();
-            parameter3.ParameterName = "@usuario";
-            parameter3.Value = detalle.Usuario;
-
-            var parameter4 = command.CreateParameter();
-            parameter4.ParameterName = "@idPresupuesto";
-            parameter4.Value = detalle.IdPresupuesto;
-           
-            command.Parameters.Add(parameter1);
-            command.Parameters.Add(parameter2);
-            command.Parameters.Add(parameter3);
-            command.Parameters.Add(parameter4);
-
+            command.Parameters.Add(parameters[0]);
+            command.Parameters.Add(parameters[1]);
+            command.Parameters.Add(parameters[2]);
+            command.Parameters.Add(parameters[3]);
       
             command.ExecuteNonQuery();
             conn.Close();
@@ -257,21 +248,23 @@ namespace Presupuesto.Repository
             IDbCommand command = connection.CreateCommand();
             
             decimal gasto = 0;
-            command.CommandText = @"SELECT * FROM Gastos where Id=@Id";
+            command.CommandText = @"SELECT * FROM Gastos where Id=@id;";
 
-            var parameter = command.CreateParameter();
-            parameter.ParameterName = "@Id";
-            parameter.Value = detalle.Id;
+            var parameters = new List<SqlParameter>()
+            {
+                new SqlParameter(){ ParameterName = "@id", Value = detalle.Id},
+            };
 
-            command.Parameters.Add(parameter);
+            command.Parameters.Add(parameters[0]);
+        
             connection.Open();
             IDataReader reader = command.ExecuteReader();
 
-                    while (reader.Read())
-                    {
-                        //gasto original
-                        gasto = reader.GetDecimal(2);
-                    }
+            reader.Read();
+                    
+            //gasto original
+            gasto = reader.GetDecimal(2);
+                    
                 
                 //compara los 2 gastos para saber si se debe restar o sumar en la tabla Presupuesto
                 if (gasto < detalle.Gasto)
@@ -304,31 +297,29 @@ namespace Presupuesto.Repository
 
             command.CommandText = @"UPDATE Presupuesto SET Gastado= @gastado WHERE IdPresupuesto = @idPresupuesto;";
 
-            var parameter = command.CreateParameter();
-            parameter.ParameterName = "@idPresupuesto";
-            parameter.Value = idPresupuesto;
-            command.Parameters.Add(parameter);
+            var parameters = new SqlParameter()
+            {
+                ParameterName = "@idPresupuesto",
+                Value = idPresupuesto
+            };
+
+            command.Parameters.Add(parameters);
 
             if (operacion.op == "+")
             {
-                var parameterGastado = command.CreateParameter();
-                parameterGastado.ParameterName = "@gastado";
-                parameterGastado.Value = valorActual + operacion.diferencia;
-                command.Parameters.Add( parameterGastado );
+                var p = new SqlParameter() { ParameterName = "@gastado", Value = valorActual + operacion.diferencia };
+                command.Parameters.Add(p);
             }
+
             if (operacion.op == "-")
             {
-                var parameterGastado = command.CreateParameter();
-                parameterGastado.ParameterName = "@gastado";
-                parameterGastado.Value = valorActual - operacion.diferencia;
-                command.Parameters.Add( parameterGastado ); 
+                var p = new SqlParameter() { ParameterName = "@gastado", Value = valorActual - operacion.diferencia };
+                command.Parameters.Add(p);
             }
             else if (operacion.op == "=")
             {
-                var parameterGastado = command.CreateParameter();
-                parameterGastado.ParameterName = "@gastado";
-                parameterGastado.Value = valorActual;
-                command.Parameters.Add(parameterGastado);
+                var p = new SqlParameter() { ParameterName = "@gastado", Value = valorActual };
+                command.Parameters.Add(p);
             }
                command.ExecuteNonQuery();
 
