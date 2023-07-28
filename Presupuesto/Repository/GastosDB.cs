@@ -21,8 +21,8 @@ namespace Presupuesto.Repository
             var fecha = Functions.mesAñoIntParse(mesAño);
 
             var command = string.Format("SELECT * FROM Gastos WHERE Mes={0} AND Anio={1};", fecha.Mes, fecha.Año);
-
-            return this.ObtenerGastos(command);
+            bool eliminar = false;
+            return this.ObtenerGastos(command, eliminar);
         }
 
         public PuedeGastarResponse PuedeGastar(string idRubro, decimal valorAGastar, int idPresupuesto)
@@ -130,11 +130,9 @@ namespace Presupuesto.Repository
             this.ActualizaGastoEnPresupuesto(puedeGastarResponse.GastoRubro, detalle.Gasto, detalle.IdRubro, detalle.IdPresupuesto);
 
             return idGasto;
-          
-            
         }
 
-        public List<Gastos> ObtenerGastos(string command)
+        public List<Gastos> ObtenerGastos(string command, bool eliminar)
         {
             var conn = _connection.ObtenerConexion();
             IDbCommand commando = conn.CreateCommand();
@@ -145,8 +143,9 @@ namespace Presupuesto.Repository
             IDataReader reader = commando.ExecuteReader();
 
             var gastos = new List<Gastos>();
-            while (reader.Read())
+            if (eliminar)
             {
+                reader.Read();
                 var gasto = new Gastos()
                 {
                     Id = reader.GetString(0),
@@ -156,13 +155,30 @@ namespace Presupuesto.Repository
                     FechaCreacion = reader.GetDateTime(4),
                     Mes = reader.GetInt32(5),
                     Año = reader.GetInt32(6),
-
                 };
                 gastos.Add(gasto);
+               
             }
-            conn.Close();
-            return gastos;
-
+            else if (!eliminar)
+            {
+              while (reader.Read())
+               {
+                var gasto = new Gastos()
+                {
+                    Id = reader.GetString(0),
+                    IdPresupuesto = reader.GetInt32(1),
+                    Gasto = reader.GetDecimal(2),
+                    Usuario = reader.GetString(3),
+                    FechaCreacion = reader.GetDateTime(4),
+                    Mes = reader.GetInt32(5),
+                    Año = reader.GetInt32(6),
+                };
+                gastos.Add(gasto);
+             
+               }
+            }
+                conn.Close();
+                return gastos;
         }
 
         public async Task<string> EliminarGasto(EliminaGasto gasto)
@@ -172,7 +188,8 @@ namespace Presupuesto.Repository
             
             //Obtener el gasto a eliminar
             var comando = string.Format("SELECT * FROM Gastos WHERE Id='{0}';", gasto.Id);
-            var gastoARestar = this.ObtenerGastos(comando)?.FirstOrDefault()?.Gasto;
+            bool eliminar = true;
+            var gastoARestar = this.ObtenerGastos(comando,eliminar)?.FirstOrDefault()?.Gasto;
 
             //Se valida que el valor a restar sea menor o igual a lo gastado en presupuesto
             var sePuedeActualizarPresupuesto = gastoARestar <= puedeGastarResponse.GastoRubro;
@@ -333,7 +350,7 @@ namespace Presupuesto.Repository
     {
         Task<List<Gastos>> GastosPorMesAño(string mesAño);
         Task<string> AgregarGasto(AgregarGastoRequest detalle);
-        List<Gastos> ObtenerGastos(string command);
+        List<Gastos> ObtenerGastos(string command, bool eliminar);
         Task<string> EliminarGasto(EliminaGasto gasto);
         Task<string> ActualizaGasto(EditarGasto detalle);
         PuedeGastarResponse PuedeGastar(string idRubro, decimal valorAGastar, int idPresupuesto);
