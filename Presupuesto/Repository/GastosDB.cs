@@ -192,13 +192,15 @@ namespace Presupuesto.Repository
 
             command.CommandText = @"DELETE FROM Gastos WHERE Id = @id";
 
-            var parameter = command.CreateParameter();
-            parameter.ParameterName = "@id";
-            parameter.Value = gasto.Id;
-            command.Parameters.Add(parameter);
+            var parameters = new List<SqlParameter>()
+            {
+                new SqlParameter(){ ParameterName = "@id", Value = gasto.Id },
+                
+            };
+            command.Parameters.Add(parameters[0]);
+          
 
             command.ExecuteNonQuery();
-
             conn.Close();
             return "El gasto se eliminó correctamente.";
         }
@@ -245,8 +247,6 @@ namespace Presupuesto.Repository
             command.ExecuteNonQuery();
             conn.Close();
             return "El gasto se actualizó correctamente.";
-           
-
         }
 
         private Operacion OperacionEnPresupuesto(EditarGasto detalle)

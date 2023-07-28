@@ -139,58 +139,8 @@ namespace TestPresupuesto
             //Assert
             Assert.Equal(message, res);
 
-
-
         }
 
-        [Fact]
-        public async Task PuedeGastar()
-        {
-            //var idRubro = "123456";
-            //var valorAGastar = 123;
-            //var IdPresupuesto = 123456;
-
-            //var puedeGastarResponse = new PuedeGastarResponse()
-            //{
-            //    GastoRubro = 100,
-            //    PuedeGastar = true
-
-            //};
-
-            //_readerMock.Setup(reader => reader.GetOrdinal("@Gastado")).Returns(0);
-            //_readerMock.Setup(reader => reader.GetDecimal(5)).Returns(100);
-
-            //_readerMock.Setup(reader => reader.GetOrdinal("@Presupuesto")).Returns(1);
-            //_readerMock.Setup(reader => reader.GetDecimal(4)).Returns(3000);
-
-
-            ////
-            //_parametersMock.Setup(p => p.ParameterName).Returns("@IdRubro");
-            //_parametersMock.Setup(v => v.Value).Returns("IND");
-
-            //_parametersMock.Setup(p => p.ParameterName).Returns("@IdPresupuesto");
-            //_parametersMock.Setup(v => v.Value).Returns(123456);
-
-            //_dataParameter.Setup(command => command.Add(_parametersMock.Object));
-
-            //var parameters = new Mock<IDataParameterCollection>();
-
-            //var connectionMock = MockDependencies.GetConnectionMock(_readerMock, parameters);
-            //_connection.Setup(x => x.ObtenerConexion())
-            //    .Returns(connectionMock.Object);
-
-            //var respuesta = _gastosDB.PuedeGastar(idRubro, valorAGastar, IdPresupuesto);
-
-
-            ////
-            //Assert.NotNull(respuesta);
-            //Assert.Equal(respuesta.GastoRubro, puedeGastarResponse.GastoRubro);
-
-
-
-
-
-        }
         [Fact]
         public async Task AgregarGasto_ok()
         {
