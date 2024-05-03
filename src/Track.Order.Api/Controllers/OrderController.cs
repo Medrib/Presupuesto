@@ -7,6 +7,7 @@ using Track.Order.Application.Interfaces;
 using Track.Order.Common;
 using Track.Order.Infrastructure;
 using Track.Order.Api.Contracts.Ingreso;
+using Track.Order.Domain.Entities;
 
 namespace Track.Order.Api.Controllers;
 
@@ -16,13 +17,11 @@ public class OrderController : Controller
 {
     private readonly IOrderService _orderService;
     private readonly IMapper _mapper;
-    private readonly TrackOrderDbContext _dbContext;
 
-    public OrderController(IOrderService orderService, IMapper mapper, TrackOrderDbContext dbContext)
+    public OrderController(IOrderService orderService, IMapper mapper)
     {
         _orderService = orderService;
         _mapper = mapper;
-        _dbContext = dbContext;
     }
 
     [HttpGet()]
@@ -71,7 +70,6 @@ public class OrderController : Controller
         }
         catch (Exception ex)
         {
-            // Manejo de errores: loguear el error, devolver un mensaje de error adecuado, etc.
             return StatusCode(StatusCodes.Status500InternalServerError, "Ocurrió un error al agregar el gasto.");
         }
     }
@@ -90,32 +88,25 @@ public class OrderController : Controller
         }
         catch (Exception ex)
         {
-            // Manejo de errores: loguear el error, devolver un mensaje de error adecuado, etc.
             return StatusCode(StatusCodes.Status500InternalServerError, "Ocurrió un error al agregar el gasto.");
         }
     }
 
-
-
-    [HttpGet("state")]
+    [HttpPost("agregarCategoria")]
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetAllStateAsync()
+    public async Task<IActionResult> AgregarCategoria([FromBody] AgregarCategoriaRequest categoria)
     {
         try
         {
-            var estados = await _dbContext.categoriaGasto.ToListAsync();
-
-            if (estados == null || !estados.Any())
-                return NotFound();
-
-            return Ok(estados);
+            var serviceResult = await _orderService.AgregarCategoria(categoria);
+            return Ok(serviceResult);
         }
         catch (Exception ex)
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving states: " + ex.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError, "Ocurrió un error al agregar el gasto.");
         }
     }
 
@@ -128,6 +119,19 @@ public class OrderController : Controller
     public async Task<IActionResult> CountOrdersAsync([FromQuery] Filters filters)
     {
         var serviceResult = await _orderService.CountOrdersAsync(filters);
+        //falta manejo de errores
+        return Ok(serviceResult);
+    }
+
+    [HttpGet("getCategory")]
+    [Produces("application/json")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+
+    public async Task<IActionResult> GetCategoriesAsync()
+    {
+        var serviceResult = await _orderService.GetCategoriesAsync();
         //falta manejo de errores
         return Ok(serviceResult);
     }

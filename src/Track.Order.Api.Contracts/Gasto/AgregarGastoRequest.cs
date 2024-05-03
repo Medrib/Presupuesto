@@ -9,6 +9,4 @@ public class AgregarGastoRequest
     public string Descripcion { get; set; } = string.Empty;
     public int IDPresupuesto { get; set; } 
     public int IDCategoriaGasto { get; set; } 
-    //public Presupuesto? Presupuesto { get; set; }
-    //public CategoriaGasto? CategoriaGasto { get; set; }
 }

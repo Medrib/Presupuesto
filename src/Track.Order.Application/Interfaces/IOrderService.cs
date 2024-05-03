@@ -15,6 +15,9 @@ public interface IOrderService
     Task<string> AgregarGasto(AgregarGastoRequest detalle);
 
     Task<string> AgregarIngreso(AgregarIngresoRequest detalle);
-    //Task<string> AgregarGasto(Filters detalle);
+
+    Task<string> AgregarCategoria(AgregarCategoriaRequest categoria);
+
+    Task<List<CategoriaGasto>> GetCategoriesAsync();
 }
 

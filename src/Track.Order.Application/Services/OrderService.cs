@@ -13,11 +13,13 @@ public class OrderService : IOrderService
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IIngresoRepository _ingresoRepository;
+    private readonly ICategoriaRepository _categoriaRepository;
 
-    public OrderService(IOrderRepository orderRepository,IIngresoRepository ingresoRepository)
+    public OrderService(IOrderRepository orderRepository,IIngresoRepository ingresoRepository, ICategoriaRepository categoriaRepository)
     {
         _orderRepository = orderRepository;
         _ingresoRepository = ingresoRepository;
+        _categoriaRepository = categoriaRepository;
     }
     public async Task<IturriResult> GetAllGastosAsync()
     {
@@ -83,7 +85,7 @@ public class OrderService : IOrderService
 
         int totalCount = ordersFiltered.Count();
 
-        return totalCount; //return total number of orders per filter
+        return totalCount;
     }
     public static Expression<Func<Domain.Entities.Gastos, bool>> BuildFilter(Filters filters)
     {
@@ -147,11 +149,9 @@ public class OrderService : IOrderService
 
     private List<Domain.Entities.Gastos> PaginateResults(IQueryable<Domain.Entities.Gastos> orders, Pagination pagination)
     {
-        //Calculate the start and end index for pagination
         int startIndex = (pagination.PageNumber - 1) * pagination.PageSize;
         int endIndex = startIndex + pagination.PageSize - 1;
 
-        // Get results within the specified range 
         var pagedOrders = orders.Skip(startIndex).Take(pagination.PageSize).ToList();
 
         return pagedOrders;
@@ -184,6 +184,28 @@ public class OrderService : IOrderService
 
         return "Ingreso agregado exitosamente";
     }
+    public async Task<string> AgregarCategoria(AgregarCategoriaRequest detalle)
+    {
+
+        var nuevoCategoria = new CategoriaGasto
+        {
+            Nombre = detalle.Nombre,
+            Descripcion = null
+        };
+
+        await _categoriaRepository.AddAsync(nuevoCategoria);
+
+        return "Categoria agregado exitosamente";
+    }
+    public async Task<List<CategoriaGasto>> GetCategoriesAsync()
+    {
+        var categories = await _categoriaRepository.GetAllAsync();
+        var filteredCategories = categories.Where(cat => !string.IsNullOrEmpty(cat.Nombre)); 
+
+
+        return filteredCategories.ToList();
+    }
+
 }
 
 
