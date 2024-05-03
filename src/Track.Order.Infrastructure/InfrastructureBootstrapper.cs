@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Track.Order.Application.Interfaces;
+using Track.Order.Domain.Entities;
 using Track.Order.Infrastructure.Repositories;
 
 namespace Track.Order.Infrastructure;
@@ -21,6 +22,7 @@ public static class InfrastructureBootstrapper
         // Repositories
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IIngresoRepository, IngresoRepository>();
+        services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 
         return services;
     }

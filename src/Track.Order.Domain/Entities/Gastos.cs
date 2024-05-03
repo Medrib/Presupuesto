@@ -10,8 +10,8 @@ namespace Track.Order.Domain.Entities
         public decimal Monto { get; set; }
         public DateTime? Fecha { get; set; }
         public string Descripcion { get; set; } = string.Empty;
-        public int IDPresupuesto { get; set; } // Clave externa a la entidad Presupuesto
-        public int IDCategoriaGasto { get; set; } // Clave externa a la entidad CategoriaGasto
+        public int IDPresupuesto { get; set; } 
+        public int IDCategoriaGasto { get; set; }
         public Presupuesto? Presupuesto { get; set; }
         public CategoriaGasto? CategoriaGasto { get; set; }
     }
